@@ -31,5 +31,10 @@ private object Routes { const val LIST = "list"; const val SETTINGS = "settings"
 
 @Composable private fun BatteryDestination(viewModel: AppViewModel, id: Long, content: @Composable (Battery) -> Unit) {
     val battery by viewModel.battery(id).collectAsStateWithLifecycle(initialValue = null)
-    battery?.let(content) ?: Text("БАТАРЕЮ НЕ ЗНАЙДЕНО", color = Color.White)
+    val currentBattery = battery
+    if (currentBattery != null) {
+        content(currentBattery)
+    } else {
+        Text("БАТАРЕЮ НЕ ЗНАЙДЕНО", color = Color.White)
+    }
 }

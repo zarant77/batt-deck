@@ -36,7 +36,7 @@ fun BatteryDetailsScreen(
     val dateError = inputErrorText(InputRules.dateError(dateText))
     val dateTimestamp = InputRules.dateTimestamp(dateText)
     val initialDate = InputRules.formatDate(battery.lastUpdatedAt)
-    val hasChanges = draft.markingId != battery.markingId || InputRules.normalizedName(nameText) != battery.name || dateText != initialDate
+    val hasChanges = draft.markingIndex != battery.markingIndex || InputRules.normalizedName(nameText) != battery.name || dateText != initialDate
 
     Scaffold(
         topBar = {
@@ -79,10 +79,10 @@ fun BatteryDetailsScreen(
             )
             Text(stringResource(R.string.battery_type), style = MaterialTheme.typography.labelLarge)
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                settings.markings.forEach { marking ->
+                    settings.markings.forEachIndexed { markingIndex, marking ->
                     FilterChip(
-                        selected = draft.markingId == marking.id,
-                        onClick = { draft = draft.copy(markingId = marking.id) },
+                        selected = draft.markingIndex == markingIndex,
+                        onClick = { draft = draft.copy(markingIndex = markingIndex) },
                         label = { Text(marking.name) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = FilterChipDefaults.filterChipColors(selectedContainerColor = markingColor(marking), selectedLabelColor = TextPrimary),

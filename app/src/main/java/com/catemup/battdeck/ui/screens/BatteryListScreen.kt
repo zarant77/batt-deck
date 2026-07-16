@@ -105,7 +105,7 @@ private fun BatteryCard(
 ) {
     val percent = BatteryRules.percent(battery.voltage, settings.minVoltage, settings.maxVoltage)
     val color = statusColor(BatteryRules.status(percent))
-    val marking = settings.markings.firstOrNull { it.id == battery.markingId } ?: settings.markings.first()
+    val marking = settings.markings.getOrElse(battery.markingIndex) { settings.markings.first() }
     val swipeOffset = remember(battery.id) { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val shape = MaterialTheme.shapes.medium

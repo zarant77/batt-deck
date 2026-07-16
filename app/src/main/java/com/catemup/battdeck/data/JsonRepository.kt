@@ -84,8 +84,19 @@ class JsonRepository(context: Context) {
         })
     }
 
-    suspend fun saveSettings(settings: AppSettings) = update { current ->
-        current.copy(settings = settings).reconcileBatteryCount()
+    suspend fun saveSettings(settings: AppSettings, originalMarkingIndices: List<Int>) = update { current ->
+        current.copy(
+            settings = settings,
+            batteries = current.batteries.map { battery ->
+                battery.copy(markingIndex = originalMarkingIndices.indexOf(battery.markingIndex).takeIf { it >= 0 } ?: 0)
+            },
+        ).reconcileBatteryCount()
+    }
+
+    suspend fun replaceAll(data: AppData) = mutex.withLock {
+        val next = data.normalized()
+        write(next)
+        mutableData.value = next
     }
 
     private suspend fun update(transform: (AppData) -> AppData) = mutex.withLock {
@@ -109,7 +120,7 @@ class JsonRepository(context: Context) {
         val settings = AppSettings(language = defaultLanguage())
         val now = System.currentTimeMillis()
         return AppData(settings, (1..settings.batteryCount).map { number ->
-            Battery(number.toLong(), String.format(Locale.US, "%02d", number), settings.markings.first().id, settings.maxVoltage, number - 1, number == 1, false, now, now)
+            Battery(number.toLong(), String.format(Locale.US, "%02d", number), 0, settings.maxVoltage, number - 1, number == 1, false, now, now)
         })
     }
 
@@ -126,7 +137,7 @@ class JsonRepository(context: Context) {
         val nextOrder = (batteries.maxOfOrNull { it.sortOrder } ?: -1) + 1
         val added = (0 until amount).map { index ->
             val defaultNumber = nextOrder + index + 1
-            Battery(nextId + index, String.format(Locale.US, "%02d", defaultNumber), settings.markings.first().id, settings.maxVoltage, nextOrder + index, false, false, now, now)
+            Battery(nextId + index, String.format(Locale.US, "%02d", defaultNumber), 0, settings.maxVoltage, nextOrder + index, false, false, now, now)
         }
         return copy(batteries = batteries + added)
     }
@@ -147,26 +158,25 @@ class JsonRepository(context: Context) {
             markings = safeMarkings,
         )
         val activeId = batteries.firstOrNull { it.isActive && !it.isRemoved }?.id
-        val markingIds = safeMarkings.mapTo(mutableSetOf()) { it.id }
         return copy(settings = safeSettings, batteries = batteries.map {
-            it.copy(isActive = it.id == activeId, markingId = it.markingId.takeIf(markingIds::contains) ?: safeMarkings.first().id)
+            it.copy(isActive = it.id == activeId, markingIndex = it.markingIndex.takeIf { index -> index in safeMarkings.indices } ?: 0)
         }).reconcileBatteryCount()
     }
 
     private fun encode(value: AppData): String = JSONObject().apply {
-        put("schemaVersion", 3)
+        put("schemaVersion", 5)
         put("settings", JSONObject().apply {
             put("batteryCount", value.settings.batteryCount)
             put("minVoltage", value.settings.minVoltage)
             put("maxVoltage", value.settings.maxVoltage)
-            put("language", value.settings.language.name)
+            put("language", value.settings.language.toStorageCode())
             put("markings", JSONArray().apply { value.settings.markings.forEach { marking ->
-                put(JSONObject().apply { put("id", marking.id); put("name", marking.name); put("color", marking.color) })
+                put(JSONObject().apply { put("name", marking.name); put("color", marking.color) })
             } })
         })
         put("batteries", JSONArray().apply { value.batteries.forEach { battery ->
             put(JSONObject().apply {
-                put("id", battery.id); put("name", battery.name); put("markingId", battery.markingId)
+                put("id", battery.id); put("name", battery.name); put("markingIndex", battery.markingIndex)
                 put("voltage", battery.voltage); put("sortOrder", battery.sortOrder); put("isActive", battery.isActive)
                 put("isRemoved", battery.isRemoved); put("lastUpdatedAt", battery.lastUpdatedAt); put("createdAt", battery.createdAt)
             })
@@ -176,12 +186,16 @@ class JsonRepository(context: Context) {
     private fun decode(json: String): AppData {
         val root = JSONObject(json)
         val settingsJson = root.getJSONObject("settings")
-        val markings = settingsJson.optJSONArray("markings")?.let { markingArray ->
-            buildList { for (index in 0 until markingArray.length()) { val item = markingArray.getJSONObject(index); add(BatteryMarking(item.getString("id"), item.getString("name"), item.getLong("color"))) } }
+        val markingArray = settingsJson.optJSONArray("markings")
+        val legacyMarkingIds = markingArray?.let { array ->
+            buildList { for (index in 0 until array.length()) add(array.getJSONObject(index).optString("id")) }
+        } ?: emptyList()
+        val markings = markingArray?.let { markingArray ->
+            buildList { for (index in 0 until markingArray.length()) { val item = markingArray.getJSONObject(index); add(BatteryMarking(item.getString("name"), item.getLong("color"))) } }
         } ?: defaultBatteryMarkings()
         val settings = AppSettings(
             settingsJson.getInt("batteryCount"), settingsJson.getDouble("minVoltage"), settingsJson.getDouble("maxVoltage"),
-            runCatching { AppLanguage.valueOf(settingsJson.optString("language", AppLanguage.SYSTEM.name)) }.getOrDefault(AppLanguage.SYSTEM),
+            parseLanguage(settingsJson.optString("language")),
             markings,
         )
         val array = root.getJSONArray("batteries")
@@ -191,7 +205,14 @@ class JsonRepository(context: Context) {
                 add(Battery(
                     id = item.getLong("id"),
                     name = item.optString("name").ifBlank { String.format(Locale.US, "%02d", item.optInt("number", index + 1)) },
-                    markingId = item.optString("markingId").ifBlank { if (item.optString("type") == "BLACK") "black" else "blue" },
+                    markingIndex = if (item.has("markingIndex")) item.optInt("markingIndex") else {
+                        val legacyId = item.optString("markingId")
+                        legacyMarkingIds.indexOf(legacyId).takeIf { it >= 0 } ?: when (legacyId) {
+                            "black" -> 1
+                            "blue" -> 0
+                            else -> if (item.optString("type") == "BLACK") 1 else 0
+                        }
+                    },
                     voltage = item.getDouble("voltage"), sortOrder = item.getInt("sortOrder"),
                     isActive = item.optBoolean("isActive"), isRemoved = item.optBoolean("isRemoved"),
                     lastUpdatedAt = item.getLong("lastUpdatedAt"), createdAt = item.getLong("createdAt"),
@@ -203,6 +224,14 @@ class JsonRepository(context: Context) {
 
     private fun defaultLanguage(): AppLanguage =
         if (Locale.getDefault().language == "en") AppLanguage.ENGLISH else AppLanguage.UKRAINIAN
+
+    private fun AppLanguage.toStorageCode(): String = if (this == AppLanguage.ENGLISH) "EN" else "UK"
+
+    private fun parseLanguage(value: String): AppLanguage = when (value) {
+        "EN", AppLanguage.ENGLISH.name -> AppLanguage.ENGLISH
+        "UK", AppLanguage.UKRAINIAN.name -> AppLanguage.UKRAINIAN
+        else -> defaultLanguage()
+    }
 
     companion object { const val FILE_NAME = "battdeck.json" }
 }

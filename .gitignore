@@ -9,3 +9,7 @@ captures/
 *.apk
 *.aab
 .DS_Store
+keystore/
+keystore.properties
+*.jks
+*.keystore

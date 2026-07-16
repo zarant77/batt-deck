@@ -28,6 +28,10 @@ battdeck/
 
         data/
           JsonRepository.kt
+          backup/
+            BackupModels.kt
+            BackupExporter.kt
+            BackupImporter.kt
 
         domain/
           Battery.kt
@@ -57,7 +61,7 @@ battdeck/
         BatteryRulesTest.kt
 ```
 
-`AppViewModel` координує невеликий MVP-стан усіх екранів; правила заряду, нормалізація вводу та валідація залишаються в `domain`, а читання, сумісна міграція JSON schema 1 → 2 та атомарний запис `battdeck.json` — у `data/JsonRepository.kt`. Material 3 компоненти й спільні поля вводу знаходяться в `ui/components/Components.kt`.
+`AppViewModel` координує невеликий MVP-стан усіх екранів; правила заряду, нормалізація вводу та валідація залишаються в `domain`, а читання, сумісна міграція та атомарний запис `battdeck.json` — у `data/JsonRepository.kt`. Портативний JSON schema 1 створюють і перевіряють класи в `data/backup`; системні file picker і share sheet запускає UI. Material 3 компоненти й спільні поля вводу знаходяться в `ui/components/Components.kt`.
 
 ## Package name
 

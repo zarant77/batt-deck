@@ -8,9 +8,9 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 GRADLEW="$ROOT_DIR/gradlew"
 SOURCE_APK="$ROOT_DIR/app/build/outputs/apk/debug/app-debug.apk"
 APK="$ROOT_DIR/build/BattDeck-debug.apk"
-SOURCE_RELEASE_APK="$ROOT_DIR/app/build/outputs/apk/release/app-release-unsigned.apk"
+SOURCE_RELEASE_APK="$ROOT_DIR/app/build/outputs/apk/release/app-release.apk"
 SOURCE_RELEASE_AAB="$ROOT_DIR/app/build/outputs/bundle/release/app-release.aab"
-RELEASE_APK="$ROOT_DIR/build/BattDeck-release-unsigned.apk"
+RELEASE_APK="$ROOT_DIR/build/BattDeck-release.apk"
 RELEASE_AAB="$ROOT_DIR/build/BattDeck-release.aab"
 
 if [ -t 1 ]; then
@@ -133,6 +133,17 @@ build() {
 }
 
 build_release() {
+    [ -f "$ROOT_DIR/keystore.properties" ] || die "keystore.properties is missing. Copy keystore.properties.example and fill in the signing credentials"
+    [ -f "$ROOT_DIR/keystore/battdeck-upload.jks" ] || die "keystore/battdeck-upload.jks was not found"
+    command -v keytool >/dev/null 2>&1 || die "keytool was not found. Use the JDK 17 installation configured for Android builds"
+    STORE_PASSWORD=$(sed -n 's/^storePassword=//p' "$ROOT_DIR/keystore.properties")
+    SIGNING_KEY_ALIAS=$(sed -n 's/^keyAlias=//p' "$ROOT_DIR/keystore.properties")
+    [ -n "$STORE_PASSWORD" ] || die "storePassword is empty in keystore.properties"
+    [ -n "$SIGNING_KEY_ALIAS" ] || die "keyAlias is empty in keystore.properties"
+    keytool -list -keystore "$ROOT_DIR/keystore/battdeck-upload.jks" -storepass "$STORE_PASSWORD" >/dev/null 2>&1 ||
+        die "storePassword in keystore.properties is not the password used to create battdeck-upload.jks"
+    keytool -list -keystore "$ROOT_DIR/keystore/battdeck-upload.jks" -storepass "$STORE_PASSWORD" -alias "$SIGNING_KEY_ALIAS" >/dev/null 2>&1 ||
+        die "keyAlias '$SIGNING_KEY_ALIAS' was not found in battdeck-upload.jks"
     info "Building release APK and AAB..."
     gradle assembleRelease bundleRelease
     [ -f "$SOURCE_RELEASE_APK" ] || die "Gradle finished without producing a release APK"
@@ -142,7 +153,7 @@ build_release() {
     cp "$SOURCE_RELEASE_AAB" "$RELEASE_AAB"
     info "Release APK ready: $RELEASE_APK"
     info "Release AAB ready: $RELEASE_AAB"
-    warn "The release APK is unsigned. Configure release signing before distribution."
+    info "Release artifacts are signed with battdeck-upload.jks"
 }
 
 install_app() {

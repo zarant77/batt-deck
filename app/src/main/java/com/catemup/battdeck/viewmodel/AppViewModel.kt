@@ -8,6 +8,10 @@ import com.catemup.battdeck.domain.AppSettings
 import com.catemup.battdeck.domain.AppLanguage
 import com.catemup.battdeck.domain.Battery
 import com.catemup.battdeck.domain.BatteryRules
+import com.catemup.battdeck.data.backup.BackupExporter
+import com.catemup.battdeck.data.backup.BackupImporter
+import com.catemup.battdeck.data.backup.ImportPreview
+import com.catemup.battdeck.data.backup.ImportResult
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +25,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as BattDeckApplication
     private val repository = app.repository
     private val mutableLanguagePreview = MutableStateFlow<AppLanguage?>(null)
+    private val mutableImportPreview = MutableStateFlow<ImportPreview?>(null)
     val languagePreview = mutableLanguagePreview.asStateFlow()
+    val importPreview = mutableImportPreview.asStateFlow()
     val state = repository.data.map { data ->
         val ordered = data.batteries.filterNot { it.isRemoved }.sortedWith(
             compareBy<Battery> {
@@ -41,5 +47,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun remove(value: Battery, onDone: () -> Unit = {}) { viewModelScope.launch { repository.remove(value.id); onDone() } }
     fun previewLanguage(value: AppLanguage) { mutableLanguagePreview.value = value }
     fun cancelLanguagePreview() { mutableLanguagePreview.value = null }
-    fun saveSettings(value: AppSettings, onDone: () -> Unit = {}) { viewModelScope.launch { repository.saveSettings(value); mutableLanguagePreview.value = null; onDone() } }
+    fun saveSettings(value: AppSettings, originalMarkingIndices: List<Int>, onDone: () -> Unit = {}) { viewModelScope.launch { repository.saveSettings(value, originalMarkingIndices); mutableLanguagePreview.value = null; onDone() } }
+    fun exportJson(): String = BackupExporter.export(repository.data.value)
+    fun prepareImport(json: String, fileName: String?): ImportResult = BackupImporter.parse(json).also {
+        mutableImportPreview.value = (it as? ImportResult.Success)?.preview?.copy(fileName = fileName)
+    }
+    fun cancelImport() { mutableImportPreview.value = null }
+    fun applyImport(onDone: () -> Unit = {}) {
+        val preview = mutableImportPreview.value ?: return
+        viewModelScope.launch { repository.replaceAll(preview.data); mutableImportPreview.value = null; mutableLanguagePreview.value = null; onDone() }
+    }
 }

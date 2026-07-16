@@ -32,16 +32,19 @@ import java.util.Locale
 @Composable
 fun SettingsScreen(
     initial: AppSettings,
-    usedMarkingIds: Set<String>,
+    usedMarkingIndices: Set<Int>,
     selectedLanguage: AppLanguage,
     onLanguageChange: (AppLanguage) -> Unit,
+    onExport: () -> Unit,
+    onImport: () -> Unit,
     onCancel: () -> Unit,
-    onSave: (AppSettings) -> Unit,
+    onSave: (AppSettings, List<Int>) -> Unit,
 ) {
     var countText by remember(initial) { mutableStateOf(initial.batteryCount.toString()) }
     var minText by remember(initial) { mutableStateOf(String.format(Locale.US, "%.1f", initial.minVoltage)) }
     var maxText by remember(initial) { mutableStateOf(String.format(Locale.US, "%.1f", initial.maxVoltage)) }
     var markings by remember(initial) { mutableStateOf(initial.markings) }
+    var originalMarkingIndices by remember(initial) { mutableStateOf(initial.markings.indices.toList()) }
     val count = InputRules.integerOrNull(countText)
     val min = InputRules.decimalOrNull(minText)
     val max = InputRules.decimalOrNull(maxText)
@@ -60,7 +63,7 @@ fun SettingsScreen(
                 Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.cancel)) }
                     Button(
-                        onClick = { if (count != null && min != null && max != null) onSave(AppSettings(count, min, max, selectedLanguage, markings.map { it.copy(name = it.name.trim()) })) },
+                        onClick = { if (count != null && min != null && max != null) onSave(AppSettings(count, min, max, selectedLanguage, markings.map { it.copy(name = it.name.trim()) }), originalMarkingIndices) },
                         enabled = valid && changed, modifier = Modifier.weight(1f),
                     ) { Text(stringResource(R.string.save)) }
                 }
@@ -105,11 +108,11 @@ fun SettingsScreen(
             SettingsSectionCard {
                 Text(stringResource(R.string.markings), style = MaterialTheme.typography.titleMedium)
                 val palette = listOf(0xFF2F80EDL, 0xFF252C38L, 0xFF42D77DL, 0xFFFFA726L, 0xFFFF5C68L, 0xFF8E5BE8L, 0xFFFFD500L)
-                markings.forEach { marking ->
+                markings.forEachIndexed { markingIndex, marking ->
                     val nameInvalid = marking.name.trim().isEmpty() || marking.name.trim().length > 24
                     OutlinedTextField(
                         value = marking.name,
-                        onValueChange = { value -> if (value.length <= 24) markings = markings.map { if (it.id == marking.id) it.copy(name = value) else it } },
+                        onValueChange = { value -> if (value.length <= 24) markings = markings.mapIndexed { index, item -> if (index == markingIndex) item.copy(name = value) else item } },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(R.string.marking_name)) },
                         singleLine = true,
@@ -123,24 +126,38 @@ fun SettingsScreen(
                                     Box(
                                         Modifier.size(34.dp).background(Color(colorValue), CircleShape)
                                             .then(if (marking.color == colorValue) Modifier.border(3.dp, TextPrimary, CircleShape) else Modifier)
-                                            .clickable { markings = markings.map { if (it.id == marking.id) it.copy(color = colorValue) else it } },
+                                            .clickable { markings = markings.mapIndexed { index, item -> if (index == markingIndex) item.copy(color = colorValue) else item } },
                                     )
                                 }
                             }
                         }
                     }
-                    val used = marking.id in usedMarkingIds
+                    val originalIndex = originalMarkingIndices[markingIndex]
+                    val used = originalIndex in usedMarkingIndices
                     if (used) Text(stringResource(R.string.marking_in_use), color = TextMuted, style = MaterialTheme.typography.labelSmall)
                     TextButton(
-                        onClick = { markings = markings.filterNot { it.id == marking.id } },
+                        onClick = {
+                            markings = markings.filterIndexed { index, _ -> index != markingIndex }
+                            originalMarkingIndices = originalMarkingIndices.filterIndexed { index, _ -> index != markingIndex }
+                        },
                         enabled = !used && markings.size > 1,
                     ) { Text(stringResource(R.string.delete_marking)) }
                     HorizontalDivider()
                 }
                 OutlinedButton(
-                    onClick = { markings = markings + BatteryMarking("custom_${System.nanoTime()}", "", 0xFF2F80EDL) },
+                    onClick = {
+                        markings = markings + BatteryMarking("", 0xFF2F80EDL)
+                        originalMarkingIndices = originalMarkingIndices + -1
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(stringResource(R.string.add_marking)) }
+            }
+            SettingsSectionCard {
+                Text(stringResource(R.string.data), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.export_json_description), color = TextMuted)
+                OutlinedButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.export_json)) }
+                Text(stringResource(R.string.import_json_description), color = TextMuted)
+                OutlinedButton(onClick = onImport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.import_json)) }
             }
         }
     }

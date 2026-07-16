@@ -28,7 +28,7 @@ fun ChargeEditScreen(battery: Battery, settings: AppSettings, onSettings: () -> 
     var voltage by remember(battery.id) { mutableDoubleStateOf(battery.voltage.coerceIn(settings.minVoltage, settings.maxVoltage)) }
     val percent = BatteryRules.percent(voltage, settings.minVoltage, settings.maxVoltage)
     val color = statusColor(BatteryRules.status(percent))
-    val marking = settings.markings.firstOrNull { it.id == battery.markingId } ?: settings.markings.first()
+    val marking = settings.markings.getOrElse(battery.markingIndex) { settings.markings.first() }
     val markerColor = markingColor(marking)
 
     Scaffold(

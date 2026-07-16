@@ -3,7 +3,7 @@ package com.catemup.battdeck.domain
 data class Battery(
     val id: Long,
     val name: String,
-    val markingId: String,
+    val markingIndex: Int,
     val voltage: Double,
     val sortOrder: Int,
     val isActive: Boolean,
@@ -12,11 +12,11 @@ data class Battery(
     val createdAt: Long,
 )
 
-data class BatteryMarking(val id: String, val name: String, val color: Long)
+data class BatteryMarking(val name: String, val color: Long)
 
 fun defaultBatteryMarkings() = listOf(
-    BatteryMarking("blue", "Синя", 0xFF2F80EDL),
-    BatteryMarking("black", "Чорна", 0xFF252C38L),
+    BatteryMarking("Синя", 0xFF2F80EDL),
+    BatteryMarking("Чорна", 0xFF252C38L),
 )
 enum class BatteryStatus { READY, WARNING, DANGER }
 enum class AppLanguage { SYSTEM, UKRAINIAN, ENGLISH }

@@ -8,6 +8,10 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 GRADLEW="$ROOT_DIR/gradlew"
 SOURCE_APK="$ROOT_DIR/app/build/outputs/apk/debug/app-debug.apk"
 APK="$ROOT_DIR/build/BattDeck-debug.apk"
+SOURCE_RELEASE_APK="$ROOT_DIR/app/build/outputs/apk/release/app-release-unsigned.apk"
+SOURCE_RELEASE_AAB="$ROOT_DIR/app/build/outputs/bundle/release/app-release.aab"
+RELEASE_APK="$ROOT_DIR/build/BattDeck-release-unsigned.apk"
+RELEASE_AAB="$ROOT_DIR/build/BattDeck-release.aab"
 
 if [ -t 1 ]; then
     BOLD='\033[1m'
@@ -128,17 +132,24 @@ build() {
     info "Build ready: $APK"
 }
 
+build_release() {
+    info "Building release APK and AAB..."
+    gradle assembleRelease bundleRelease
+    [ -f "$SOURCE_RELEASE_APK" ] || die "Gradle finished without producing a release APK"
+    [ -f "$SOURCE_RELEASE_AAB" ] || die "Gradle finished without producing a release AAB"
+    mkdir -p "$ROOT_DIR/build"
+    cp "$SOURCE_RELEASE_APK" "$RELEASE_APK"
+    cp "$SOURCE_RELEASE_AAB" "$RELEASE_AAB"
+    info "Release APK ready: $RELEASE_APK"
+    info "Release AAB ready: $RELEASE_AAB"
+    warn "The release APK is unsigned. Configure release signing before distribution."
+}
+
 install_app() {
     [ -f "$APK" ] || build
     select_device
     info "Installing the app on ${DEVICE}..."
     "$ADB" -s "$DEVICE" install -r "$APK"
-}
-
-run_app() {
-    select_device
-    info "Starting BattDeck on ${DEVICE}..."
-    "$ADB" -s "$DEVICE" shell am start -n "$APP_ID/$MAIN_ACTIVITY"
 }
 
 build_run() {
@@ -183,10 +194,11 @@ Usage: ./runner.sh [command]
   doctor       check Java, Android SDK, adb, and connected devices
   devices      list connected devices
   build        build the debug APK and copy it to build/
+  release      build the release APK and AAB and copy them to build/
+  icons        generate Android launcher icons from logo.png
   test         run unit tests
   lint         run Android lint
   install      install the exported APK (build it first if missing)
-  run          start the installed app
   build-run    build, install, and start the app on a device
   logs         stream logs from the running app
   uninstall    uninstall the app and its data from the device
@@ -203,28 +215,28 @@ menu() {
     while :; do
         printf '\n%bBattDeck runner%b\n' "$BOLD" "$RESET"
         printf '  1) Build, install, and run\n'
-        printf '  2) Build APK\n'
-        printf '  3) Start app\n'
-        printf '  4) Run tests\n'
-        printf '  5) Android lint\n'
-        printf '  6) Connected devices\n'
-        printf '  7) App logs\n'
-        printf '  8) Clean project\n'
-        printf '  9) Deep clean\n'
-        printf ' 10) Check environment\n'
+        printf '  2) Build APK + AAB\n'
+        printf '  3) Run tests\n'
+        printf '  4) Android lint\n'
+        printf '  5) Connected devices\n'
+        printf '  6) App logs\n'
+        printf '  7) Clean project\n'
+        printf '  8) Deep clean\n'
+        printf '  9) Check environment\n'
+        printf ' 10) Generate launcher icons\n'
         printf '  0) Exit\n> '
         read -r CHOICE || exit 0
         case "$CHOICE" in
             1) build_run ;;
-            2) build ;;
-            3) run_app ;;
-            4) gradle test ;;
-            5) gradle lintDebug ;;
-            6) devices ;;
-            7) logs ;;
-            8) clean ;;
-            9) deep_clean ;;
-            10) doctor ;;
+            2) build_release ;;
+            3) gradle test ;;
+            4) gradle lintDebug ;;
+            5) devices ;;
+            6) logs ;;
+            7) clean ;;
+            8) deep_clean ;;
+            9) doctor ;;
+            10) "$ROOT_DIR/tools/generate_launcher_icons.sh" ;;
             0) exit 0 ;;
             *) warn "Select an option from 0 to 10" ;;
         esac
@@ -237,10 +249,11 @@ case "$COMMAND" in
     doctor) doctor ;;
     devices) devices ;;
     build) build ;;
+    release) build_release ;;
+    icons) "$ROOT_DIR/tools/generate_launcher_icons.sh" ;;
     test) gradle test ;;
     lint) gradle lintDebug ;;
     install) install_app ;;
-    run) run_app ;;
     build-run) build_run ;;
     logs) logs ;;
     uninstall) uninstall_app ;;

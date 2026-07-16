@@ -1,169 +1,29 @@
 # UI Specification
 
-## Загальний стиль
+BattDeck uses a dark Material 3 interface with a modern technical mood. It uses standard `Scaffold`, top app bars, cards, buttons, chips, text fields, and progress indicators. The old pixel/terminal presentation and stepper-based primary inputs are not used.
 
-Інтерфейс має зберегти характер першої версії:
+## Main screen
 
-- темний фон;
-- tactical/pixel HUD стиль;
-- тонкі контури;
-- моноширинний або pixel-style шрифт;
-- великі цифри;
-- неоновий зелений для нормального стану;
-- помаранчевий для попередження;
-- червоний для небезпеки;
-- синій маркер для синього типу батареї;
-- чорний/темний маркер для чорного типу батареї.
+The top bar shows `BATTDECK`, a short subtitle, Help, and Settings. Each outlined card shows the text battery name, type chip, voltage, calculated percentage, last-update text, and a horizontal charge indicator. An active pack has an `АКТИВНА` chip, highlighted surface, and blue border.
 
-UI може бути реалізований на Jetpack Compose, але не повинен виглядати як стандартний Material застосунок.
+Tap a card for details; tap its charge bar to edit voltage. Swipe left or right to toggle active state; the card follows the finger and reveals an action background. Packs at 95% or above can be reordered by vertically dragging their full-height color handle; all packs below 95% are grouped at the end of the list.
 
-Material 3 можна використовувати як технічну основу, але візуально застосунок має мати власний стиль.
+## Charge editing
 
-## Головний екран
+The screen shows the pack name and type, current voltage, calculated percentage, vertical indicator, and an `OutlinedTextField` labeled `Напруга` with decimal keyboard and `V` suffix. Both `.` and `,` are accepted. Invalid, empty, partial, or out-of-range values show an error and cannot be saved.
 
-### Верхня частина
+## Battery details
 
-- назва: `BATTDECK`;
-- версія дрібним текстом праворуч;
-- кнопка допомоги `?`.
+The name is editable in a required text field with a 32-character limit. Filter chips select `СИНЯ` or `ЧОРНА`. The screen also shows voltage, percentage, charge indicator, update age, active state, and actions to activate, edit charge, remove, cancel, or save.
 
-### Список батарей
+## Settings
 
-Кожна батарея — окрема картка/рядок.
+Outlined numeric fields edit pack count, minimum voltage, and maximum voltage. Count is restricted to `1..50`; minimum must be lower than maximum. Errors are shown in Ukrainian and saving is disabled until the changed values are valid. A scale preview maps minimum to 0% and maximum to 100%.
 
-Рядок містить:
+## Help and accessibility
 
-- маркер типу;
-- номер батареї;
-- стан або час від останнього оновлення;
-- напругу;
-- відсоток;
-- горизонтальний прогрес-бар.
+Help describes the current fields and gestures. Standard Material components provide comfortable touch targets and high-contrast text. The app remains dark-mode only.
 
-Приклад:
+## Localization
 
-```text
-■ 01 АКТИВНА      50.2v 100%
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-Для неактивної батареї:
-
-```text
-■ 02 9 ДНІВ ТОМУ  50.2v 100%
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Активна батарея
-
-Активна батарея повинна мати чітке виділення:
-
-- рамка;
-- текст `АКТИВНА`;
-- бажано додатковий маркер або акцентний колір.
-
-Активною може бути тільки одна батарея.
-
-### Нижня частина
-
-- кнопка `НАЛАШТУВАННЯ`.
-
-## Екран допомоги
-
-Має коротко пояснювати основні правила.
-
-Текст має бути командний і короткий:
-
-```text
-ТАП — ЗМІНИТИ ЗАРЯД.
-СВАЙП ВПРАВО — АКТИВУВАТИ.
-СВАЙП ВЛІВО — СКИНУТИ.
-ПЕРЕТЯГНИ ЗА НОМЕР — ЗМІНИТИ ЧЕРГУ.
-У ДЕТАЛЯХ МОЖНА ЗМІНИТИ НОМЕР І ТИП.
-```
-
-Також пояснити кольори:
-
-```text
->95%  ЗЕЛЕНИЙ
->50%  ПОМАРАНЧЕВИЙ
-<50%  ЧЕРВОНИЙ
-```
-
-Знизу кнопка `ЗАКРИТИ`.
-
-## Екран налаштувань
-
-Поля:
-
-- кількість комплектів;
-- мінімальна напруга;
-- максимальна напруга.
-
-Для зміни чисел використовувати великі кнопки:
-
-```text
--10   -0.1   +0.1   +10
-```
-
-або адаптовані до конкретного поля значення.
-
-Внизу:
-
-- `СКАСУВАТИ`;
-- `ЗБЕРЕГТИ`.
-
-Кнопка збереження має бути неактивною, якщо змін немає або значення невалідні.
-
-## Екран зміни заряду
-
-Має показувати:
-
-- тип батареї;
-- номер;
-- відсоток;
-- напругу;
-- велику вертикальну батарею;
-- кнопки `НАЛАШТУВАТИ`, `СКАСУВАТИ`, `ЗБЕРЕГТИ`.
-
-Головним значенням є напруга. Відсоток — розрахунковий.
-
-Користувач повинен мати швидкий спосіб змінити напругу.
-
-Можливі варіанти:
-
-- вертикальний drag по батареї;
-- кнопки `-1.0`, `-0.1`, `+0.1`, `+1.0`;
-- обидва способи.
-
-## Екран деталей батареї
-
-Має показувати:
-
-- номер батареї;
-- тип;
-- напругу;
-- відсоток;
-- час останнього оновлення;
-- статус.
-
-Дії:
-
-- змінити номер;
-- змінити тип;
-- змінити заряд;
-- активувати;
-- скинути;
-- вилучити.
-
-Внизу:
-
-- `ВИЛУЧИТИ`;
-- `СКАСУВАТИ`;
-- `ЗБЕРЕГТИ`.
-
-## Touch-зони
-
-Всі інтерактивні елементи мають бути достатньо великими для польового використання.
-
-Візуально UI може бути піксельним, але натискання не повинні вимагати точності снайпера.
+All user-facing text is stored in Android string resources. Ukrainian in `values/strings.xml` is the fallback language; English is provided in `values-en/strings.xml`. On first launch the app selects English for an English phone locale and Ukrainian otherwise. Settings provide a two-flag segmented selector for Ukrainian and English; the choice is persisted with app settings.

@@ -63,6 +63,7 @@
 ```bash
 ./runner.sh doctor      # перевірити середовище і підключення
 ./runner.sh build-run   # зібрати, встановити й запустити на телефоні
+./runner.sh release     # зібрати release APK та AAB у build/
 ./runner.sh test        # запустити unit-тести
 ./runner.sh clean       # очистити результати збірки
 ./runner.sh deep-clean  # також прибрати локальний кеш Gradle
@@ -79,6 +80,17 @@
 ```
 
 Debug APK буде створено в `app/build/outputs/apk/debug/`. Для запуску відкрийте корінь репозиторію в Android Studio, дочекайтеся синхронізації Gradle та запустіть конфігурацію `app` на пристрої або емуляторі з Android 7.0 чи новішим.
+
+## Іконка застосунку
+
+Файл `logo.png` у корені репозиторію є вихідним логотипом для Android launcher icons. Щоб згенерувати legacy та adaptive іконки без Android Studio, встановіть ImageMagick і запустіть скрипт:
+
+```bash
+brew install imagemagick
+./tools/generate_launcher_icons.sh
+```
+
+Також можна обрати `Generate launcher icons` в інтерактивному `./runner.sh`.
 
 ## Реалізовано у v0.1.0
 

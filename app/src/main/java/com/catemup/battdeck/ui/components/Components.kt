@@ -2,51 +2,134 @@ package com.catemup.battdeck.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.catemup.battdeck.R
 import com.catemup.battdeck.domain.BatteryStatus
-import com.catemup.battdeck.domain.BatteryType
+import com.catemup.battdeck.domain.BatteryMarking
+import com.catemup.battdeck.domain.InputRules
 import com.catemup.battdeck.ui.theme.*
 
-fun statusColor(status: BatteryStatus) = when (status) { BatteryStatus.READY -> NeonGreen; BatteryStatus.WARNING -> WarningOrange; else -> DangerRed }
-
-@Composable fun PixelButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, color: Color = NeonGreen) {
-    Box(modifier.heightIn(min = 48.dp).border(1.dp, if (enabled) color else TextMuted).clickable(enabled = enabled, onClick = onClick).padding(horizontal = 14.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
-        Text(text, color = if (enabled) color else TextMuted, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-    }
+fun statusColor(status: BatteryStatus) = when (status) {
+    BatteryStatus.READY -> ReadyGreen
+    BatteryStatus.WARNING -> WarningOrange
+    BatteryStatus.DANGER -> DangerRed
 }
 
-@Composable fun TypeMarker(type: BatteryType, modifier: Modifier = Modifier) {
-    Box(modifier.size(22.dp).background(if (type == BatteryType.BLUE) BatteryBlue else BatteryBlack).border(1.dp, if (type == BatteryType.BLUE) BatteryBlue else TextMuted))
+@Composable
+fun BatteryChargeBar(percent: Int, color: Color, modifier: Modifier = Modifier, height: Int = 8) {
+    LinearProgressIndicator(
+        progress = { percent.coerceIn(0, 100) / 100f },
+        modifier = modifier.fillMaxWidth().height(height.dp),
+        color = color,
+        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+    )
 }
 
-@Composable fun BatteryBar(percent: Int, color: Color, modifier: Modifier = Modifier) {
-    Box(modifier.height(8.dp).border(1.dp, Grid)) { Box(Modifier.fillMaxHeight().fillMaxWidth(percent / 100f).background(color)) }
-}
-
-@Composable fun VerticalBattery(percent: Int, color: Color, modifier: Modifier = Modifier) {
+@Composable
+fun VerticalBatteryIndicator(
+    percent: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+    bodyWidth: Int = 116,
+    bodyHeight: Int = 190,
+) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.width(42.dp).height(10.dp).background(color))
-        Box(Modifier.width(150.dp).height(260.dp).border(3.dp, color).padding(8.dp), contentAlignment = Alignment.BottomCenter) {
-            Box(Modifier.fillMaxWidth().fillMaxHeight(percent / 100f).background(color.copy(alpha = .8f)))
+        Box(Modifier.width((bodyWidth / 3).dp).height(10.dp).background(color, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)))
+        Box(
+            Modifier.width(bodyWidth.dp).height(bodyHeight.dp).border(3.dp, color, RoundedCornerShape(12.dp)).padding(8.dp),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            Box(
+                Modifier.fillMaxWidth().fillMaxHeight(percent.coerceIn(0, 100) / 100f)
+                    .background(color.copy(alpha = .8f), RoundedCornerShape(5.dp)),
+            )
         }
     }
 }
 
-@Composable fun Stepper(label: String, value: String, steps: List<Pair<String, () -> Unit>>) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(label, color = TextMuted, fontSize = 13.sp)
-        Text(value, color = TextPrimary, fontSize = 30.sp, fontWeight = FontWeight.Bold)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) { steps.forEach { (text, action) -> PixelButton(text, action, Modifier.weight(1f), color = WarningOrange) } }
+@Composable
+fun markingColor(marking: BatteryMarking) = Color(marking.color)
+
+@Composable
+fun BatteryMarkingChip(marking: BatteryMarking) {
+    val color = markingColor(marking)
+    AssistChip(
+        onClick = {},
+        enabled = false,
+        label = { Text(marking.name) },
+        colors = AssistChipDefaults.assistChipColors(
+            disabledContainerColor = color.copy(alpha = .28f),
+            disabledLabelColor = TextPrimary,
+        ),
+    )
+}
+
+@Composable
+fun BatteryStatusChip() {
+    AssistChip(
+        onClick = {}, enabled = false, label = { Text(stringResource(R.string.active)) },
+        colors = AssistChipDefaults.assistChipColors(
+            disabledContainerColor = ReadyGreen.copy(alpha = .18f), disabledLabelColor = ReadyGreen,
+        ),
+    )
+}
+
+@Composable
+fun BatteryNameTextField(value: String, onValueChange: (String) -> Unit, error: String?, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { if (it.length <= InputRules.MAX_NAME_LENGTH) onValueChange(it) },
+        modifier = modifier,
+        label = { Text(stringResource(R.string.battery_name)) },
+        placeholder = { Text(stringResource(R.string.battery_name_placeholder)) },
+        singleLine = true,
+        isError = error != null,
+        supportingText = { Text(error ?: stringResource(R.string.name_hint, InputRules.MAX_NAME_LENGTH)) },
+    )
+}
+
+@Composable
+fun VoltageTextField(value: String, onValueChange: (String) -> Unit, label: String, error: String?, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { if (InputRules.isDecimalDraft(it)) onValueChange(it) },
+        modifier = modifier,
+        label = { Text(label) },
+        suffix = { Text(stringResource(R.string.voltage_suffix)) },
+        singleLine = true,
+        isError = error != null,
+        supportingText = { if (error != null) Text(error) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+    )
+}
+
+@Composable
+fun NumberTextField(value: String, onValueChange: (String) -> Unit, label: String, error: String?, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { if (InputRules.isIntegerDraft(it)) onValueChange(it) },
+        modifier = modifier,
+        label = { Text(label) },
+        singleLine = true,
+        isError = error != null,
+        supportingText = { if (error != null) Text(error) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+    )
+}
+
+@Composable
+fun SettingsSectionCard(content: @Composable ColumnScope.() -> Unit) {
+    OutlinedCard(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
     }
 }

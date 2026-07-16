@@ -57,7 +57,7 @@ battdeck/
         BatteryRulesTest.kt
 ```
 
-`AppViewModel` координує невеликий MVP-стан усіх екранів; правила заряду залишаються в `domain`, а читання та атомарний запис `battdeck.json` — у `data/JsonRepository.kt`. Коли функціональність екранів зросте, ViewModel можна розділити без зміни сховища чи domain API.
+`AppViewModel` координує невеликий MVP-стан усіх екранів; правила заряду, нормалізація вводу та валідація залишаються в `domain`, а читання, сумісна міграція JSON schema 1 → 2 та атомарний запис `battdeck.json` — у `data/JsonRepository.kt`. Material 3 компоненти й спільні поля вводу знаходяться в `ui/components/Components.kt`.
 
 ## Package name
 
@@ -84,7 +84,7 @@ app/src/main/res/drawable/
 app/src/main/res/font/
 ```
 
-Якщо буде кастомний pixel font, зберігати його в:
+Якщо буде потрібен кастомний шрифт, зберігати його в:
 
 ```text
 app/src/main/res/font/

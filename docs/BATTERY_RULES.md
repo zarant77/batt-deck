@@ -70,24 +70,10 @@ UI:
 
 Колір: помаранчевий.
 
-### Low
-
-```text
-percent < orangePercent && percent > 0
-```
-
-UI:
-
-```text
-НИЗЬКА
-```
-
-Колір: червоний.
-
 ### Danger
 
 ```text
-percent <= 0
+percent < 50
 ```
 
 UI:

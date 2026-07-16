@@ -1,21 +1,40 @@
 package com.catemup.battdeck.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.catemup.battdeck.ui.components.PixelButton
-import com.catemup.battdeck.ui.theme.*
+import com.catemup.battdeck.ui.theme.TextMuted
+import com.catemup.battdeck.R
 
-@Composable fun HelpScreen(onClose: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Text("ДОПОМОГА", color = NeonGreen, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("BATTDECK ДОПОМАГАЄ ВЕСТИ ОФЛАЙН-ОБЛІК КОМПЛЕКТІВ ТА ЇХ ЧЕРГИ.", color = TextPrimary)
-        Text("КОЛЬОРИ ЗАРЯДУ\n≥95%  ЗЕЛЕНИЙ\n≥50%  ПОМАРАНЧЕВИЙ\n<50%   ЧЕРВОНИЙ", color = TextPrimary, lineHeight = 27.sp)
-        Text("ТАП ПО ЗАРЯДУ — ЗМІНИТИ ЗАРЯД.\n\nСВАЙП ВПРАВО — АКТИВУВАТИ.\n\nСВАЙП ВЛІВО — СКИНУТИ.\n\nПЕРЕТЯГУВАННЯ ДЛЯ ЗМІНИ ЧЕРГИ — У НАСТУПНІЙ ВЕРСІЇ.\n\nУ НАЛАШТУВАННЯХ ЗМІНЮЄТЬСЯ КІЛЬКІСТЬ ТА ШКАЛА НАПРУГИ.", color = TextMuted, lineHeight = 22.sp)
-        Spacer(Modifier.weight(1f)); PixelButton("ЗАКРИТИ", onClose, Modifier.fillMaxWidth())
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HelpScreen(onClose: () -> Unit) {
+    Scaffold(
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.help)) }, actions = { IconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close)) } }) },
+    ) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(stringResource(R.string.help_intro), style = MaterialTheme.typography.bodyLarge)
+            HelpCard(stringResource(R.string.help_colors_title), stringResource(R.string.help_colors_text))
+            HelpCard(stringResource(R.string.help_controls_title), stringResource(R.string.help_controls_text))
+            HelpCard(stringResource(R.string.help_gestures_title), stringResource(R.string.help_gestures_text))
+            HelpCard(stringResource(R.string.help_settings_title), stringResource(R.string.help_settings_text))
+            Spacer(Modifier.weight(1f))
+            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.close)) }
+        }
+    }
+}
+
+@Composable
+private fun HelpCard(title: String, text: String) {
+    OutlinedCard(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(text, color = TextMuted)
+        }
     }
 }

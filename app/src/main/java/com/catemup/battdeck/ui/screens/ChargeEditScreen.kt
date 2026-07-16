@@ -1,31 +1,85 @@
 package com.catemup.battdeck.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.catemup.battdeck.domain.*
+import com.catemup.battdeck.R
 import com.catemup.battdeck.ui.components.*
 import com.catemup.battdeck.ui.theme.*
 import java.util.Locale
 import kotlin.math.round
 
-@Composable fun ChargeEditScreen(battery: Battery, settings: AppSettings, onDetails: () -> Unit, onCancel: () -> Unit, onSave: (Battery) -> Unit) {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChargeEditScreen(battery: Battery, settings: AppSettings, onSettings: () -> Unit, onCancel: () -> Unit, onSave: (Battery) -> Unit) {
     var voltage by remember(battery.id) { mutableDoubleStateOf(battery.voltage.coerceIn(settings.minVoltage, settings.maxVoltage)) }
-    fun change(delta: Double) { voltage = (round((voltage + delta) * 10) / 10).coerceIn(settings.minVoltage, settings.maxVoltage) }
     val percent = BatteryRules.percent(voltage, settings.minVoltage, settings.maxVoltage)
     val color = statusColor(BatteryRules.status(percent))
-    Column(Modifier.fillMaxSize().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) { TypeMarker(battery.type); Spacer(Modifier.width(10.dp)); Text("БАТАРЕЯ %02d".format(battery.number), color = TextPrimary, fontSize = 23.sp, fontWeight = FontWeight.Bold) }
-        Text("$percent%", color = color, fontSize = 52.sp, fontWeight = FontWeight.Bold)
-        Text(String.format(Locale.US, "%.1f V", voltage), color = color, fontSize = 28.sp)
-        VerticalBattery(percent, color, Modifier.weight(1f, fill = false))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) { listOf(-1.0, -.1, .1, 1.0).forEach { step -> PixelButton(if (step > 0) "+$step" else step.toString(), { change(step) }, Modifier.weight(1f), color = WarningOrange) } }
-        PixelButton("ДЕТАЛІ", onDetails, Modifier.fillMaxWidth(), color = BatteryBlue)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { PixelButton("СКАСУВАТИ", onCancel, Modifier.weight(1f), color = TextMuted); PixelButton("ЗБЕРЕГТИ", { onSave(battery.copy(voltage = voltage, lastUpdatedAt = System.currentTimeMillis())) }, Modifier.weight(1f)) }
+    val marking = settings.markings.firstOrNull { it.id == battery.markingId } ?: settings.markings.first()
+    val markerColor = markingColor(marking)
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text(battery.name) }, actions = { IconButton(onClick = onCancel) { Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close)) } }) },
+        bottomBar = {
+            Surface(shadowElevation = 8.dp) {
+                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.settings)) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.cancel)) }
+                        Button(
+                            onClick = { onSave(battery.copy(voltage = round(voltage * 10) / 10, lastUpdatedAt = System.currentTimeMillis())) },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(stringResource(R.string.save)) }
+                    }
+                }
+            }
+        },
+    ) { padding ->
+        Column(
+            Modifier.fillMaxSize().padding(padding).padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.width(18.dp).height(42.dp)
+                        .background(markerColor, MaterialTheme.shapes.extraSmall)
+                        .border(1.dp, Grid, MaterialTheme.shapes.extraSmall),
+                )
+                Spacer(Modifier.width(14.dp))
+                Text(stringResource(R.string.voltage_value, voltage), color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.percent_value, percent), color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            }
+            Box(
+                Modifier.weight(1f).fillMaxWidth().pointerInput(settings.minVoltage, settings.maxVoltage) {
+                    val range = settings.maxVoltage - settings.minVoltage
+                    detectVerticalDragGestures { change, amount ->
+                        change.consume()
+                        voltage = (voltage - (amount / size.height) * range * 2.2).coerceIn(settings.minVoltage, settings.maxVoltage)
+                    }
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                VerticalBatteryIndicator(percent, color, bodyWidth = 164, bodyHeight = 300)
+                Column(Modifier.align(Alignment.CenterEnd), horizontalAlignment = Alignment.End) {
+                    Text(stringResource(R.string.percent_value, 100), color = TextMuted, style = MaterialTheme.typography.labelSmall)
+                    Spacer(Modifier.height(260.dp))
+                    Text(stringResource(R.string.percent_value, 0), color = TextMuted, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
     }
 }

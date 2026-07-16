@@ -1,0 +1,1 @@
+<resources><style name="Theme.BattDeck" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">monospace</item><item name="android:windowLightStatusBar">false</item><item name="android:navigationBarColor">#080C0A</item><item name="android:statusBarColor">#080C0A</item></style></resources>

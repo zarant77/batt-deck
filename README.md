@@ -107,13 +107,13 @@ The debug APK is created under `app/build/outputs/apk/debug/`. Without `keystore
 
 ### Personal release signing
 
-Personal release APK and AAB files use `keystore/battdeck-upload.jks`. Copy the local template and fill in the real key details:
+Personal release APK and AAB files use the keystore configured locally through `storeFile`. An absolute path outside the repository is recommended. Copy the local template and fill in the real key details:
 
 ```bash
 cp keystore.properties.example keystore.properties
 ```
 
-Set `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. Both `keystore.properties` and keystore files are excluded from Git. Signed outputs are copied to `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
+Set `storeFile`, `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. Relative `storeFile` values are resolved from the project root; absolute paths are used as-is. `keystore.properties` and keystore files are excluded from Git. Signed outputs are copied to `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
 
 ## Distribution
 

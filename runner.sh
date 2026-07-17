@@ -134,16 +134,22 @@ build() {
 
 build_release() {
     [ -f "$ROOT_DIR/keystore.properties" ] || die "keystore.properties is missing. Copy keystore.properties.example and fill in the signing credentials"
-    [ -f "$ROOT_DIR/keystore/battdeck-upload.jks" ] || die "keystore/battdeck-upload.jks was not found"
     command -v keytool >/dev/null 2>&1 || die "keytool was not found. Use the JDK 17 installation configured for Android builds"
+    SIGNING_STORE_FILE=$(sed -n 's/^storeFile=//p' "$ROOT_DIR/keystore.properties")
     STORE_PASSWORD=$(sed -n 's/^storePassword=//p' "$ROOT_DIR/keystore.properties")
     SIGNING_KEY_ALIAS=$(sed -n 's/^keyAlias=//p' "$ROOT_DIR/keystore.properties")
+    [ -n "$SIGNING_STORE_FILE" ] || die "storeFile is empty in keystore.properties"
     [ -n "$STORE_PASSWORD" ] || die "storePassword is empty in keystore.properties"
     [ -n "$SIGNING_KEY_ALIAS" ] || die "keyAlias is empty in keystore.properties"
-    keytool -list -keystore "$ROOT_DIR/keystore/battdeck-upload.jks" -storepass "$STORE_PASSWORD" >/dev/null 2>&1 ||
-        die "storePassword in keystore.properties is not the password used to create battdeck-upload.jks"
-    keytool -list -keystore "$ROOT_DIR/keystore/battdeck-upload.jks" -storepass "$STORE_PASSWORD" -alias "$SIGNING_KEY_ALIAS" >/dev/null 2>&1 ||
-        die "keyAlias '$SIGNING_KEY_ALIAS' was not found in battdeck-upload.jks"
+    case "$SIGNING_STORE_FILE" in
+        /*) SIGNING_KEYSTORE=$SIGNING_STORE_FILE ;;
+        *) SIGNING_KEYSTORE="$ROOT_DIR/$SIGNING_STORE_FILE" ;;
+    esac
+    [ -f "$SIGNING_KEYSTORE" ] || die "keystore configured by storeFile was not found: $SIGNING_KEYSTORE"
+    keytool -list -keystore "$SIGNING_KEYSTORE" -storepass "$STORE_PASSWORD" >/dev/null 2>&1 ||
+        die "storePassword in keystore.properties does not open the configured keystore"
+    keytool -list -keystore "$SIGNING_KEYSTORE" -storepass "$STORE_PASSWORD" -alias "$SIGNING_KEY_ALIAS" >/dev/null 2>&1 ||
+        die "keyAlias '$SIGNING_KEY_ALIAS' was not found in the configured keystore"
     info "Building release APK and AAB..."
     gradle assembleRelease bundleRelease
     [ -f "$SOURCE_RELEASE_APK" ] || die "Gradle finished without producing a release APK"
@@ -153,7 +159,7 @@ build_release() {
     cp "$SOURCE_RELEASE_AAB" "$RELEASE_AAB"
     info "Release APK ready: $RELEASE_APK"
     info "Release AAB ready: $RELEASE_AAB"
-    info "Release artifacts are signed with battdeck-upload.jks"
+    info "Release artifacts are signed with $SIGNING_KEYSTORE"
 }
 
 install_app() {

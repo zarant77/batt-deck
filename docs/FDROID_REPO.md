@@ -42,13 +42,13 @@ Because `config.yml` is a tracked public template, any password fields written t
 
 ## 3. Configure BattDeck APK signing
 
-The APK itself must also be signed consistently. Create the ignored root `keystore.properties` from the provided example and fill it with the local BattDeck upload key details:
+The APK itself must also be signed consistently. Create the ignored root `keystore.properties` from the provided example and fill it with the local BattDeck upload key details. Prefer an absolute `storeFile` path to a keystore stored outside the repository:
 
 ```bash
 cp keystore.properties.example keystore.properties
 ```
 
-Neither `keystore.properties` nor `keystore/battdeck-upload.jks` may be committed.
+Neither `keystore.properties` nor the external upload keystore may be committed.
 
 ## 4. Add BattDeck and update the repository
 

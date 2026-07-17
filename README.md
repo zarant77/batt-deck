@@ -103,17 +103,20 @@ Direct Gradle commands:
 ./gradlew test
 ```
 
-The debug APK is created under `app/build/outputs/apk/debug/`. Without `keystore.properties`, the release command creates an unsigned APK suitable for F-Droid signing. The app supports Android 7.0 and later.
+The debug APK is created under `app/build/outputs/apk/debug/`. Without the external signing-properties file, the Gradle release task creates an unsigned APK suitable for F-Droid signing. The app supports Android 7.0 and later.
 
 ### Personal release signing
 
-Personal release APK and AAB files use the keystore configured locally through `storeFile`. An absolute path outside the repository is recommended. Copy the local template and fill in the real key details:
+Personal release APK and AAB files use `/Users/zar/Dropbox/Keys/catemup-keystore.properties` by default. This external file points to the upload keystore through `storeFile`, so neither configuration nor key material lives in the repository. Create the file outside the repository with these fields:
 
-```bash
-cp keystore.properties.example keystore.properties
+```properties
+storeFile=/Users/zar/Dropbox/Keys/catemup-upload.jks
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_KEY_PASSWORD
 ```
 
-Set `storeFile`, `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. Relative `storeFile` values are resolved from the project root; absolute paths are used as-is. `keystore.properties` and keystore files are excluded from Git. Signed outputs are copied to `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
+Set `storeFile`, `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. A relative `storeFile` is resolved from the directory containing the external properties file; an absolute path is used as-is. Another machine can override the properties location with `BATTDECK_KEYSTORE_PROPERTIES=/path/to/file`. Signed outputs are copied to `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
 
 ## Distribution
 

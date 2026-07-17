@@ -133,21 +133,22 @@ build() {
 }
 
 build_release() {
-    [ -f "$ROOT_DIR/keystore.properties" ] || die "keystore.properties is missing. Copy keystore.properties.example and fill in the signing credentials"
+    KEYSTORE_PROPERTIES_FILE=${BATTDECK_KEYSTORE_PROPERTIES:-/Users/zar/Dropbox/Keys/catemup-keystore.properties}
+    [ -f "$KEYSTORE_PROPERTIES_FILE" ] || die "keystore properties file was not found: $KEYSTORE_PROPERTIES_FILE"
     command -v keytool >/dev/null 2>&1 || die "keytool was not found. Use the JDK 17 installation configured for Android builds"
-    SIGNING_STORE_FILE=$(sed -n 's/^storeFile=//p' "$ROOT_DIR/keystore.properties")
-    STORE_PASSWORD=$(sed -n 's/^storePassword=//p' "$ROOT_DIR/keystore.properties")
-    SIGNING_KEY_ALIAS=$(sed -n 's/^keyAlias=//p' "$ROOT_DIR/keystore.properties")
-    [ -n "$SIGNING_STORE_FILE" ] || die "storeFile is empty in keystore.properties"
-    [ -n "$STORE_PASSWORD" ] || die "storePassword is empty in keystore.properties"
-    [ -n "$SIGNING_KEY_ALIAS" ] || die "keyAlias is empty in keystore.properties"
+    SIGNING_STORE_FILE=$(sed -n 's/^storeFile=//p' "$KEYSTORE_PROPERTIES_FILE")
+    STORE_PASSWORD=$(sed -n 's/^storePassword=//p' "$KEYSTORE_PROPERTIES_FILE")
+    SIGNING_KEY_ALIAS=$(sed -n 's/^keyAlias=//p' "$KEYSTORE_PROPERTIES_FILE")
+    [ -n "$SIGNING_STORE_FILE" ] || die "storeFile is empty in $KEYSTORE_PROPERTIES_FILE"
+    [ -n "$STORE_PASSWORD" ] || die "storePassword is empty in $KEYSTORE_PROPERTIES_FILE"
+    [ -n "$SIGNING_KEY_ALIAS" ] || die "keyAlias is empty in $KEYSTORE_PROPERTIES_FILE"
     case "$SIGNING_STORE_FILE" in
         /*) SIGNING_KEYSTORE=$SIGNING_STORE_FILE ;;
-        *) SIGNING_KEYSTORE="$ROOT_DIR/$SIGNING_STORE_FILE" ;;
+        *) SIGNING_KEYSTORE="$(dirname "$KEYSTORE_PROPERTIES_FILE")/$SIGNING_STORE_FILE" ;;
     esac
     [ -f "$SIGNING_KEYSTORE" ] || die "keystore configured by storeFile was not found: $SIGNING_KEYSTORE"
     keytool -list -keystore "$SIGNING_KEYSTORE" -storepass "$STORE_PASSWORD" >/dev/null 2>&1 ||
-        die "storePassword in keystore.properties does not open the configured keystore"
+        die "storePassword in $KEYSTORE_PROPERTIES_FILE does not open the configured keystore"
     keytool -list -keystore "$SIGNING_KEYSTORE" -storepass "$STORE_PASSWORD" -alias "$SIGNING_KEY_ALIAS" >/dev/null 2>&1 ||
         die "keyAlias '$SIGNING_KEY_ALIAS' was not found in the configured keystore"
     info "Building release APK and AAB..."

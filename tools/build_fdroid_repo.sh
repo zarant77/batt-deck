@@ -15,7 +15,8 @@ die() {
 
 command -v fdroid >/dev/null 2>&1 || die "fdroidserver is not installed. On macOS: brew install fdroidserver"
 [ -x "$ROOT_DIR/gradlew" ] || die "gradlew was not found or is not executable"
-[ -f "$ROOT_DIR/keystore.properties" ] || die "keystore.properties is required locally to create a signed release APK"
+KEYSTORE_PROPERTIES_FILE=${BATTDECK_KEYSTORE_PROPERTIES:-/Users/zar/Dropbox/Keys/catemup-keystore.properties}
+[ -f "$KEYSTORE_PROPERTIES_FILE" ] || die "keystore properties file is required to create a signed release APK: $KEYSTORE_PROPERTIES_FILE"
 
 printf 'Building signed BattDeck release APK...\n'
 (cd "$ROOT_DIR" && ./gradlew assembleRelease)

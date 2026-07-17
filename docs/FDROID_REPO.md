@@ -42,13 +42,16 @@ Because `config.yml` is a tracked public template, any password fields written t
 
 ## 3. Configure BattDeck APK signing
 
-The APK itself must also be signed consistently. Create the ignored root `keystore.properties` from the provided example and fill it with the local BattDeck upload key details. Prefer an absolute `storeFile` path to a keystore stored outside the repository:
+The APK itself must also be signed consistently. By default, Gradle and the runner read `/Users/zar/Dropbox/Keys/catemup-keystore.properties`. Create this external file with the local BattDeck upload key details:
 
-```bash
-cp keystore.properties.example keystore.properties
+```properties
+storeFile=/Users/zar/Dropbox/Keys/catemup-upload.jks
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_KEY_PASSWORD
 ```
 
-Neither `keystore.properties` nor the external upload keystore may be committed.
+For another machine, set `BATTDECK_KEYSTORE_PROPERTIES=/path/to/catemup-keystore.properties`. Neither the external properties file nor the upload keystore may be committed.
 
 ## 4. Add BattDeck and update the repository
 

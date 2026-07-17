@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.io.File
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,7 +7,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystorePropertiesPath = providers.environmentVariable("BATTDECK_KEYSTORE_PROPERTIES")
+    .orElse("/Users/zar/Dropbox/Keys/catemup-keystore.properties")
+    .get()
+val keystorePropertiesFile = rootProject.file(keystorePropertiesPath)
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) keystorePropertiesFile.inputStream().use(::load)
 }
@@ -31,7 +35,8 @@ android {
     signingConfigs {
         if (releaseSigningConfigured) {
             create("release") {
-                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                val configuredStoreFile = File(keystoreProperties.getProperty("storeFile"))
+                storeFile = if (configuredStoreFile.isAbsolute) configuredStoreFile else File(keystorePropertiesFile.parentFile, configuredStoreFile.path)
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")

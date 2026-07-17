@@ -14,7 +14,7 @@
     "added": 1784299053.0
   },
   "com.catemup.battdeck_3.apk": {
-    "hash": "f9ccc5c44fd442652197a36a305897d687acc54f87c16687f93befa8c2bfe3cf",
+    "hash": "81d33cbf877649c389c149d67393c98f1b13b0d34b7ce326d25c336558fc3869",
     "hashType": "sha256",
     "uses-permission": [
       [
@@ -48,13 +48,13 @@
   ".DS_Store": {
     "name": ".DS_Store",
     "apkName": ".DS_Store",
-    "hash": "a49f2d216876c41e6b890f1fe87d0be41d7748a0b606a758f6480419cd35f70d",
+    "hash": "fdaf9a508d3fbdd6d049c1a0365570943a2bdb91d243ca314c4c224bbbd74a41",
     "hashType": "sha256",
     "ipfsCIDv1": null,
     "versionCode": 0,
-    "versionName": "a49f2d2",
-    "packageName": "a49f2d216876c41e6b890f1fe87d0be41d7748a0b606a758f6480419cd35f70d",
-    "size": 6148,
+    "versionName": "fdaf9a5",
+    "packageName": "fdaf9a508d3fbdd6d049c1a0365570943a2bdb91d243ca314c4c224bbbd74a41",
+    "size": 8196,
     "added": 1784300578.0
   }
 }

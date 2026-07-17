@@ -1,107 +1,92 @@
 # Product Specification
 
-## Назва
+## Name
 
 BattDeck
 
-## Платформа
+## Platform
 
 Android.
 
-## Тип застосунку
+## Application type
 
-Офлайн-утиліта для обліку батарейних комплектів.
+Offline utility for tracking battery packs.
 
 ## MVP
 
-Перша версія повинна містити пʼять основних екранів:
+The first version contains five main screens:
 
-1. Головний список батарей.
-2. Екран допомоги.
-3. Екран налаштувань.
-4. Екран зміни заряду.
-5. Екран деталей батареї.
+1. Main battery list.
+2. Help screen.
+3. App settings screen.
+4. Charge editing screen.
+5. Battery settings screen.
 
-## Основні сутності
+## Core entities
 
-### Battery Pack
+### Battery pack
 
-Комплект батареї.
+A battery pack has:
 
-Має:
+- a local ID;
+- a user-editable name;
+- a marking index;
+- voltage;
+- the last charge update date;
+- active state;
+- a position in the usage queue.
 
-- номер;
-- тип;
-- напругу;
-- дату останньої зміни;
-- стан активності;
-- позицію в черзі.
+### Battery marking
 
-### Battery Type
-
-У MVP є два типи:
-
-- синя;
-- чорна.
-
-Тип потрібен для візуального розділення комплектів.
+Markings visually distinguish groups of battery packs. A marking consists of an editable name and color. Batteries reference a marking by its position in the global markings list, so editing a marking updates every battery that uses it.
 
 ### Settings
 
-Глобальні налаштування:
+Global settings include:
 
-- кількість комплектів;
-- мінімальна напруга;
-- максимальна напруга;
-- поріг зеленого стану;
-- поріг помаранчевого стану.
+- battery count;
+- minimum voltage;
+- maximum voltage;
+- app language;
+- ordered battery markings.
 
-## Основні дії
+## Main actions
 
-### Зробити батарею активною
+### Toggle active battery
 
-Свайп вправо або дія з екрана деталей.
+Swipe left or right on a battery card.
 
-Активною може бути тільки одна батарея.
+At most one battery can be active. New data starts with all batteries inactive, and users may also leave every battery inactive.
 
-### Скинути батарею
+### Reset a battery
 
-Свайп вліво або дія з екрана деталей.
+Resetting means the pack has been used or is no longer ready. In the MVP, reset sets the voltage to the configured minimum and clears the active state.
 
-Скидання означає, що батарея більше не готова до використання. У MVP можна просто встановлювати мінімальну напругу або переводити батарею в низький заряд.
+### Change charge
 
-### Змінити заряд
+Tapping a battery opens the charge screen. The user changes charge with a gesture over the battery indicator, while voltage and percentage are calculated from the configured range.
 
-Тап по батареї або по заряду відкриває екран зміни заряду.
+### Edit a battery
 
-Користувач змінює напругу, а відсоток розраховується автоматично.
+The battery settings screen allows the user to edit its name, marking, and charge update date.
 
-### Змінити тип батареї
+### Change queue order
 
-На екрані деталей можна перемкнути тип між синя/чорна.
+Ready batteries can be reordered on the main screen by dragging their full-height color handle. Discharged batteries remain grouped at the end.
 
-### Змінити номер батареї
+### Import and export data
 
-На екрані деталей можна змінити номер.
+Settings allow the user to export packs and configuration to JSON through the standard Android share sheet. Import uses the system document picker, displays a preview, validates the entire file, and replaces local data only after confirmation. No network, server, or account is involved.
 
-### Змінити порядок
+## MVP constraints
 
-На головному екрані батареї можна перетягувати за номер або через dedicated drag handle.
+- No accounts.
+- No network dependency.
+- No cloud synchronization.
+- No analytics or advertising.
+- No automatic battery telemetry.
+- No change history unless added in a later version.
 
-Порядок списку — це черга використання.
+## Primary requirement
 
-### Імпорт та експорт даних
-
-У налаштуваннях користувач може експортувати комплекти й налаштування у JSON та передати файл через стандартне Android-меню поширення. Імпорт виконується через системний файловий діалог, показує попередній перегляд і після підтвердження повністю замінює локальні дані. Перед застосуванням увесь файл валідується; мережа, сервер або обліковий запис не використовуються.
-
-## Обмеження MVP
-
-- Без акаунтів.
-- Без мережі.
-- Без синхронізації.
-- Без сканування QR.
-- Без історії змін у першій версії, якщо це затримує MVP.
-
-## Головна вимога
-
-Застосунок має бути простим і дуже швидким у користуванні.
+The app must remain simple and very fast to use.

@@ -1,49 +1,49 @@
 # Purpose
 
-## Що це
+## What it is
 
-**BattDeck** — це Android-застосунок для ручного обліку комплектів батарей БПЛА.
+**BattDeck** is an Android app for manually tracking UAV battery packs.
 
-Він потрібен, щоб оператор або екіпаж швидко бачив:
+It helps an operator or crew quickly see:
 
-- які батареї заряджені;
-- яку батарею зараз використовують;
-- які батареї вже скинуті або розряджені;
-- в якій черзі брати наступний комплект;
-- коли востаннє оновлювався заряд;
-- який тип має конкретний комплект.
+- which batteries are charged;
+- which battery is currently in use;
+- which batteries have already been reset or discharged;
+- which pack should be used next;
+- when the charge was last updated;
+- which marking is assigned to each pack.
 
-## Для чого це
+## Why it exists
 
-У польових умовах легко заплутатись у батареях, особливо коли комплектів багато, кілька людей працюють паралельно, а часу мало.
+Battery packs are easy to mix up in field conditions, especially when there are many packs, several people are working in parallel, and time is limited.
 
-Застосунок має замінити хаотичні нотатки, памʼять, папірці, маркери й усне “ця наче нормальна”.
+The app replaces scattered notes, memory, scraps of paper, physical markers, and vague statements such as “this one should be fine.”
 
-## Чого застосунок не робить
+## What the app does not do
 
-У MVP застосунок не має:
+The MVP does not include:
 
-- серверної частини;
-- хмарної синхронізації;
-- телеметрії;
-- Bluetooth-зчитування батарей;
-- автоматичного вимірювання напруги;
-- обліку складу;
-- авторизації користувачів.
+- a server component;
+- cloud synchronization;
+- telemetry;
+- Bluetooth battery reading;
+- automatic voltage measurement;
+- warehouse inventory management;
+- user authentication.
 
-Усе вводиться руками. Це свідоме рішення для простоти, надійності й швидкості.
+All values are entered manually. This is a deliberate choice for simplicity, reliability, and speed.
 
-## Головний сценарій
+## Main workflow
 
-1. Відкрити застосунок.
-2. Побачити список батарей.
-3. Взяти першу готову батарею з черги.
-4. Позначити її активною.
-5. Після використання скинути або змінити заряд.
-6. Перейти до наступної батареї.
+1. Open the app.
+2. Review the battery list.
+3. Take the first ready battery from the queue.
+4. Mark it as active.
+5. After use, reset it or update its charge.
+6. Move on to the next battery.
 
-## Ключова цінність
+## Core value
 
-Застосунок має зменшити ризик помилки при роботі з батареями.
+The app should reduce the risk of mistakes when working with batteries.
 
-Найважливіше: оператор не повинен випадково взяти розряджений або неготовий комплект.
+Most importantly, an operator should not accidentally select a discharged or unready pack.

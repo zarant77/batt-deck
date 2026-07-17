@@ -2,49 +2,52 @@
 
 ## Version 0.1 — MVP
 
-- Створити Android-проєкт.
-- Kotlin + Jetpack Compose.
-- Головний список батарей.
-- Кількість батарей у налаштуваннях.
-- Тип батареї: синя/чорна.
-- Номер батареї.
-- Напруга.
-- Розрахунок відсотка.
-- Статуси за кольорами.
-- Активна батарея.
-- Екран зміни заряду.
-- Екран деталей батареї.
-- Екран допомоги.
-- Локальне збереження в JSON.
+- Create the Android project.
+- Kotlin and Jetpack Compose.
+- Main battery list.
+- Configurable battery count.
+- Battery markings.
+- Custom battery names.
+- Voltage tracking.
+- Charge percentage calculation.
+- Color-coded statuses.
+- Active battery state.
+- Charge editing screen.
+- Battery settings screen.
+- Help screen.
+- Local JSON persistence.
 
 ## Version 0.2 — Usability
 
-- Drag-and-drop зміна черги.
-- Покращені свайпи.
-- Швидкі кнопки зміни напруги.
-- Краща адаптація під різні екрани.
-- Додаткові підтвердження для небезпечних дій.
-- Імпорт/експорт JSON.
+- Drag-and-drop queue ordering.
+- Improved swipe interactions.
+- More responsive charge editing.
+- Better adaptation to different screen sizes.
+- Additional confirmations for destructive actions.
+- JSON import and export.
+- Ukrainian and English localization.
 
-## Version 0.3 — History
+## Version 0.3 — Distribution and data sharing
 
-- Історія змін заряду.
-- Лічильник циклів.
-- Нотатки до батареї.
-- Дата останнього повного заряду.
-- Фільтр за типом і статусом.
+- Editable markings and colors.
+- Portable JSON backup format.
+- Signed APK and AAB release workflow.
+- F-Droid metadata and custom repository.
+- Open-source license and privacy documentation.
 
-## Version 0.4 — Field features
+## Future versions
 
-- QR-коди або штрихкоди для батарей.
-- Сканування камерою.
-- Швидке відкриття батареї по коду.
-- Резервне копіювання.
+- Charge change history.
+- Cycle counter.
+- Battery notes.
+- Date of the last full charge.
+- Filters by marking and status.
+- Optional QR or barcode lookup.
 
 ## Version 1.0
 
-- Стабільний офлайн-облік батарей.
-- Зручний польовий UI.
-- Надійне локальне збереження.
-- APK/AAB збірка.
-- Документація для користувача.
+- Stable offline battery tracking.
+- Efficient field-oriented UI.
+- Reliable local persistence.
+- Reproducible APK and AAB builds.
+- Complete user and maintainer documentation.

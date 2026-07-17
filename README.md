@@ -2,38 +2,38 @@
 
 <img src="icon.png" width="128">
 
-**BattDeck** — Android-застосунок для обліку комплектів батарей БПЛА.
+**BattDeck** is an Android application for managing UAV battery sets.
 
-Мета проста: швидко бачити, які батареї заряджені, яка батарея зараз активна, які комплекти вже використані, і в якій черзі їх брати.
+Its purpose is simple: quickly see which batteries are charged, which battery is currently active, which sets have already been used, and the order in which they should be taken.
 
-Це не складна ERP-система і не “розумний хмарний сервіс”. Це компактний офлайн-інструмент для бойового використання.
+This is not a complex ERP system or a “smart cloud service.” It is a compact offline tool designed for field operations.
 
-BattDeck працює повністю офлайн за принципом local-first. Дані зберігаються лише на пристрої; для перенесення між пристроями доступні ручні імпорт та експорт JSON через стандартні Android file picker і share sheet.
+BattDeck works entirely offline using a local-first approach. Data is stored only on the device. Manual JSON import and export through the standard Android file picker and share sheet are available for transferring data between devices.
 
-## Основна ідея
+## Core Concept
 
-- список комплектів батарей;
-- номер кожного комплекту;
-- редаговане маркування та колір комплекту;
-- поточна напруга;
-- відсоток заряду, розрахований зі шкали напруги;
-- дата останньої зміни заряду;
-- активна батарея;
-- ручна зміна заряду;
-- швидке скидання використаної батареї;
-- зміна порядку черги;
-- локальний імпорт та експорт JSON через системний файловий діалог і меню поширення.
+- a list of battery sets;
+- a number for each set;
+- editable set labels and colors;
+- current voltage;
+- charge percentage calculated from the voltage range;
+- date of the last charge update;
+- active battery;
+- manual charge adjustment;
+- quick reset of a used battery;
+- queue order management;
+- local JSON import and export through the system file picker and share menu.
 
-## Стек
+## Technology Stack
 
-Базова рекомендація для нової версії:
+Baseline recommendation for the new version:
 
 - Kotlin;
 - Jetpack Compose;
-- локальний JSON-файл;
-- Material 3 як технічна база, але з кастомним tactical/pixel UI.
+- a local JSON file;
+- Material 3 as the technical foundation, with a custom tactical/pixel UI.
 
-## Документація
+## Documentation
 
 - [Purpose](docs/PURPOSE.md)
 - [Product Specification](docs/PRODUCT_SPEC.md)
@@ -45,49 +45,49 @@ BattDeck працює повністю офлайн за принципом loca
 - [Roadmap](docs/ROADMAP.md)
 - [Codex Notes](docs/CODEX_NOTES.md)
 
-## Принцип
+## Principle
 
-Застосунок має бути швидкий, простий, офлайн і зрозумілий з першого погляду.
+The application must be fast, simple, offline, and understandable at a glance.
 
-Оператор не повинен думати, де що натискати. Відкрив — побачив стан батарей — взяв правильний комплект.
+The operator should not have to think about where to tap. Open the app, check the battery status, and take the correct set.
 
-## Приватність
+## Privacy
 
-BattDeck не використовує:
+BattDeck does not use:
 
-- акаунти або авторизацію;
-- інтернет чи віддалений сервер;
-- хмарну синхронізацію;
-- аналітику або tracking SDK;
-- рекламу чи покупки.
+- accounts or authentication;
+- the internet or a remote server;
+- cloud synchronization;
+- analytics or tracking SDKs;
+- advertising or in-app purchases.
 
-Застосунок не запитує `INTERNET`, broad storage permissions або доступ до списку встановлених застосунків. Усі робочі дані залишаються у приватному локальному сховищі Android, доки користувач сам не експортує JSON.
+The application does not request the `INTERNET` permission, broad storage permissions, or access to the list of installed applications. All operational data remains in Android's private local storage until the user explicitly exports a JSON file.
 
-## Збірка і запуск
+## Build and Run
 
-Потрібні Android Studio з JDK 17 та Android SDK 35.
+Android Studio with JDK 17 and Android SDK 35 is required.
 
-Найпростіший спосіб — запустити інтерактивний раннер:
+The easiest option is to launch the interactive runner:
 
 ```bash
 ./runner.sh
 ```
 
-Або виконати конкретну дію без меню:
+Or run a specific action without the menu:
 
 ```bash
-./runner.sh doctor      # перевірити середовище і підключення
-./runner.sh build-run   # зібрати, встановити й запустити на телефоні
-./runner.sh release     # зібрати release APK та AAB у build/
-./runner.sh test        # запустити unit-тести
-./runner.sh clean       # очистити результати збірки
-./runner.sh deep-clean  # також прибрати локальний кеш Gradle
-./runner.sh help        # усі доступні команди
+./runner.sh doctor      # Check the environment and device connection
+./runner.sh build-run   # Build, install, and launch on the phone
+./runner.sh release     # Build release APK and AAB files in build/
+./runner.sh test        # Run unit tests
+./runner.sh clean       # Remove build outputs
+./runner.sh deep-clean  # Also remove the local Gradle cache
+./runner.sh help        # Show all available commands
 ```
 
-На телефоні потрібно ввімкнути «Для розробників» → «Налагодження через USB» і підтвердити доступ для цього комп’ютера. Якщо підключено кілька пристроїв, раннер запропонує потрібний.
+On the phone, enable **Developer options** → **USB debugging** and confirm access for this computer. If multiple devices are connected, the runner will prompt you to select one.
 
-Команди Gradle напряму:
+Run Gradle commands directly:
 
 ```bash
 ./gradlew assembleDebug
@@ -95,53 +95,53 @@ BattDeck не використовує:
 ./gradlew test
 ```
 
-Debug APK буде створено в `app/build/outputs/apk/debug/`. Без `keystore.properties` release-команда створює unsigned APK, придатний для підпису F-Droid. Для запуску відкрийте корінь репозиторію в Android Studio, дочекайтеся синхронізації Gradle та запустіть конфігурацію `app` на пристрої або емуляторі з Android 7.0 чи новішим.
+The debug APK will be created in `app/build/outputs/apk/debug/`. Without `keystore.properties`, the release command creates an unsigned APK suitable for F-Droid signing. To run the project, open the repository root in Android Studio, wait for Gradle synchronization to finish, and launch the `app` configuration on a device or emulator running Android 7.0 or newer.
 
-### Підпис release-збірки
+### Signing the Release Build
 
-Release APK та AAB підписуються ключем `keystore/battdeck-upload.jks`. Скопіюйте локальний шаблон і внесіть справжні дані ключа:
+Release APK and AAB files are signed with `keystore/battdeck-upload.jks`. Copy the local template and enter the actual key credentials:
 
 ```bash
 cp keystore.properties.example keystore.properties
 ```
 
-Заповніть `storePassword`, `keyAlias` і `keyPassword`, після чого виконайте `./runner.sh release`. Файл `keystore.properties` і самі keystore-файли виключені з Git. Підписані результати зʼявляться як `build/BattDeck-release.apk` та `build/BattDeck-release.aab`.
+Fill in `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. The `keystore.properties` file and all keystore files are excluded from Git. Signed outputs will be created as `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
 
-## Розповсюдження
+## Distribution
 
-Підписані APK можна розповсюджувати напряму через GitHub Releases або інший довірений канал. Користувач має перевіряти джерело та підпис APK перед встановленням.
+Signed APK files can be distributed directly through GitHub Releases or another trusted channel. Users should verify the source and APK signature before installation.
 
-Репозиторій підготовлений для F-Droid: draft recipe знаходиться в `metadata/com.catemup.battdeck.yml`, а локалізовані описи — у `fastlane/metadata/android/`. Офіційне включення до каталогу F-Droid потребує публічного tag, доступного source archive та окремого merge request до `fdroiddata`.
+The repository is prepared for F-Droid: a draft recipe is located at `metadata/com.catemup.battdeck.yml`, and localized descriptions are stored in `fastlane/metadata/android/`. Official inclusion in the F-Droid catalog requires a public tag, an accessible source archive, and a separate merge request to `fdroiddata`.
 
-## F-Droid repository
+## F-Droid Repository
 
-BattDeck можна встановити з власного F-Droid-репозиторію:
+BattDeck can be installed from its own F-Droid repository:
 
 ```text
 https://zarant77.github.io/batt-deck/fdroid/repo/
 ```
 
-Інструкції зі створення, підпису та публікації репозиторію: [docs/FDROID_REPO.md](docs/FDROID_REPO.md).
+Instructions for creating, signing, and publishing the repository are available in [docs/FDROID_REPO.md](docs/FDROID_REPO.md).
 
-## Іконка застосунку
+## Application Icon
 
-Файл `icon.png` у корені репозиторію є єдиним джерелом для Android launcher icons та іконки F-Droid-репозиторію. Щоб згенерувати всі іконки без Android Studio, встановіть ImageMagick і запустіть скрипт:
+The `icon.png` file in the repository root is the single source for Android launcher icons and the F-Droid repository icon. To generate all icons without Android Studio, install ImageMagick and run the script:
 
 ```bash
 brew install imagemagick
 ./tools/generate_launcher_icons.sh
 ```
 
-Також можна обрати `Generate launcher icons` в інтерактивному `./runner.sh`.
+You can also select `Generate launcher icons` in the interactive `./runner.sh` menu.
 
-## Реалізовано у v0.3.0
+## Implemented in v0.3.0
 
-- пʼять MVP-екранів українською мовою;
-- локальне збереження всіх даних в одному JSON-файлі;
-- зміна заряду, маркування й назви батареї;
-- активація та скидання свайпами;
-- безпечна зміна кількості комплектів і шкали напруги.
-- обмін резервними JSON-файлами між пристроями без хмари чи акаунтів.
+- five MVP screens in Ukrainian;
+- local storage of all data in a single JSON file;
+- battery charge, label, and name editing;
+- activation and reset using swipe gestures;
+- safe adjustment of the number of battery sets and the voltage range;
+- transfer of backup JSON files between devices without cloud services or accounts.
 
 ## License
 

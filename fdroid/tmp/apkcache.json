@@ -14,7 +14,7 @@
     "added": 1784299053.0
   },
   "com.catemup.battdeck_3.apk": {
-    "hash": "81d33cbf877649c389c149d67393c98f1b13b0d34b7ce326d25c336558fc3869",
+    "hash": "83147fb30211cc126474f351f6db53193add1098b409c1979d4825a0a68216e3",
     "hashType": "sha256",
     "uses-permission": [
       [
@@ -28,9 +28,9 @@
     "icons": {},
     "antiFeatures": {},
     "packageName": "com.catemup.battdeck",
-    "versionCode": 3,
+    "versionCode": 4,
     "name": "BattDeck",
-    "versionName": "0.3.0",
+    "versionName": "0.4.0",
     "minSdkVersion": 24,
     "targetSdkVersion": 35,
     "nativecode": [
@@ -41,7 +41,7 @@
     ],
     "sig": "67650d3018eb590cb469deeea0ceb57e",
     "signer": "698125b29469483b6c21bec85c0527c1469ec5cfbc5627f5ea4e7a82e051f21e",
-    "size": 8231638,
+    "size": 8231642,
     "apkName": "com.catemup.battdeck_3.apk",
     "added": 1784300444.0
   },

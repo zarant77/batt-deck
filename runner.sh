@@ -206,7 +206,8 @@ Usage: ./runner.sh [command]
   devices      list connected devices
   build        build the debug APK and copy it to build/
   release      build the release APK and AAB and copy them to build/
-  icons        generate Android launcher icons from logo.png
+  fdroid       build and update the custom F-Droid repository
+  icons        generate Android and F-Droid icons from icon.png
   test         run unit tests
   lint         run Android lint
   install      install the exported APK (build it first if missing)
@@ -235,6 +236,7 @@ menu() {
         printf '  8) Deep clean\n'
         printf '  9) Check environment\n'
         printf ' 10) Generate launcher icons\n'
+        printf ' 11) Build F-Droid repository\n'
         printf '  0) Exit\n> '
         read -r CHOICE || exit 0
         case "$CHOICE" in
@@ -248,8 +250,9 @@ menu() {
             8) deep_clean ;;
             9) doctor ;;
             10) "$ROOT_DIR/tools/generate_launcher_icons.sh" ;;
+            11) "$ROOT_DIR/tools/build_fdroid_repo.sh" ;;
             0) exit 0 ;;
-            *) warn "Select an option from 0 to 10" ;;
+            *) warn "Select an option from 0 to 11" ;;
         esac
     done
 }
@@ -261,6 +264,7 @@ case "$COMMAND" in
     devices) devices ;;
     build) build ;;
     release) build_release ;;
+    fdroid) "$ROOT_DIR/tools/build_fdroid_repo.sh" ;;
     icons) "$ROOT_DIR/tools/generate_launcher_icons.sh" ;;
     test) gradle test ;;
     lint) gradle lintDebug ;;

@@ -1,6 +1,6 @@
 # BattDeck
 
-<img src="logo.png" width="128">
+<img src="icon.png" width="128">
 
 **BattDeck** — Android-застосунок для обліку комплектів батарей БПЛА.
 
@@ -113,9 +113,19 @@ cp keystore.properties.example keystore.properties
 
 Репозиторій підготовлений для F-Droid: draft recipe знаходиться в `metadata/com.catemup.battdeck.yml`, а локалізовані описи — у `fastlane/metadata/android/`. Офіційне включення до каталогу F-Droid потребує публічного tag, доступного source archive та окремого merge request до `fdroiddata`.
 
+## F-Droid repository
+
+BattDeck можна встановити з власного F-Droid-репозиторію:
+
+```text
+https://zarant77.github.io/batt-deck/fdroid/repo/
+```
+
+Інструкції зі створення, підпису та публікації репозиторію: [docs/FDROID_REPO.md](docs/FDROID_REPO.md).
+
 ## Іконка застосунку
 
-Файл `logo.png` у корені репозиторію є вихідним логотипом для Android launcher icons. Щоб згенерувати legacy та adaptive іконки без Android Studio, встановіть ImageMagick і запустіть скрипт:
+Файл `icon.png` у корені репозиторію є єдиним джерелом для Android launcher icons та іконки F-Droid-репозиторію. Щоб згенерувати всі іконки без Android Studio, встановіть ImageMagick і запустіть скрипт:
 
 ```bash
 brew install imagemagick

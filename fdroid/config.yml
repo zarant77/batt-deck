@@ -1,0 +1,11 @@
+repo_url: https://zarant77.github.io/batt-deck/fdroid/repo
+repo_name: BattDeck F-Droid Repository
+repo_description: Official custom F-Droid repository for BattDeck.
+archive_older: 0
+
+# Repository signing credentials are intentionally not stored here.
+# Run `fdroid init` locally and keep its keystore and passwords outside Git.
+repo_keyalias: catemup
+keydname: CN=catemup, OU=F-Droid
+keystorepass: OolJ4I8y0fmyZYT4ce+Z68IfQeolFGuhg9tqYmDze4A=
+keypass: OolJ4I8y0fmyZYT4ce+Z68IfQeolFGuhg9tqYmDze4A=

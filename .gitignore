@@ -10,8 +10,18 @@ captures/
 .cxx/
 *.apk
 *.aab
+!fdroid/repo/*.apk
 .DS_Store
 keystore/
 keystore.properties
 *.jks
 *.keystore
+
+# Local F-Droid repository signing material
+fdroid/*.jks
+fdroid/*.keystore
+fdroid/*.p12
+fdroid/*.pem
+fdroid/*.key
+fdroid/.fdroid.keystore
+fdroid/config.local.yml

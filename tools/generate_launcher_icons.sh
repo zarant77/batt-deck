@@ -5,6 +5,8 @@ set -eu
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 SOURCE="$ROOT_DIR/icon.png"
 RES_DIR="$ROOT_DIR/app/src/main/res"
+FDROID_ICON_DIR="$ROOT_DIR/fdroid/repo/icons"
+FDROID_ICON="$FDROID_ICON_DIR/icon.png"
 BACKGROUND="#0057B7"
 
 die() {
@@ -76,4 +78,14 @@ cat > "$RES_DIR/values/ic_launcher_background.xml" <<EOF
 </resources>
 EOF
 
-printf 'Launcher icons generated in %s.\n' "$RES_DIR"
+mkdir -p "$FDROID_ICON_DIR"
+
+magick "$SOURCE" \
+    -background none -alpha on \
+    -filter Lanczos \
+    -resize "410x410" \
+    -gravity center -extent "512x512" \
+    -strip "PNG32:$FDROID_ICON"
+
+printf 'Generated Android launcher icons.\n'
+printf 'Generated F-Droid repo icon: fdroid/repo/icons/icon.png\n'

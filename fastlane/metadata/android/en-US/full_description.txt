@@ -1,0 +1,18 @@
+BattDeck is a simple offline app for managing battery packs.
+
+The app helps track each battery pack, its voltage, estimated charge percentage, marking, active status, and usage order.
+
+Main features:
+
+• battery pack list
+• custom battery pack names
+• editable battery markings and colors
+• voltage input
+• automatic charge percentage calculation
+• color-coded charge status
+• active battery marker
+• configurable minimum and maximum voltage
+• JSON import and export
+• local data storage on the device
+
+BattDeck does not require an account, internet connection, cloud sync, analytics, ads, or a remote server. All data is stored locally on the user's device.

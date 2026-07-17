@@ -120,7 +120,7 @@ class JsonRepository(context: Context) {
         val settings = AppSettings(language = defaultLanguage())
         val now = System.currentTimeMillis()
         return AppData(settings, (1..settings.batteryCount).map { number ->
-            Battery(number.toLong(), String.format(Locale.US, "%02d", number), 0, settings.maxVoltage, number - 1, number == 1, false, now, now)
+            Battery(number.toLong(), String.format(Locale.US, "%02d", number), 0, settings.maxVoltage, number - 1, false, false, now, now)
         })
     }
 

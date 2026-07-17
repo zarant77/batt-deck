@@ -40,7 +40,15 @@ fun ChargeEditScreen(battery: Battery, settings: AppSettings, onSettings: () -> 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.cancel)) }
                         Button(
-                            onClick = { onSave(battery.copy(voltage = round(voltage * 10) / 10, lastUpdatedAt = System.currentTimeMillis())) },
+                            onClick = {
+                                val savedVoltage = round(voltage * 10) / 10
+                                onSave(
+                                    battery.copy(
+                                        voltage = savedVoltage,
+                                        lastUpdatedAt = if (savedVoltage != battery.voltage) System.currentTimeMillis() else battery.lastUpdatedAt,
+                                    ),
+                                )
+                            },
                             modifier = Modifier.weight(1f),
                         ) { Text(stringResource(R.string.save)) }
                     }

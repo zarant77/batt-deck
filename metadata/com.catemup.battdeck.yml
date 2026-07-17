@@ -1,0 +1,44 @@
+Categories:
+  - System
+  - Science & Education
+License: Apache-2.0
+AuthorName: Anton Zarubin / CatEmUp
+SourceCode: https://github.com/zarant77/batt-deck
+IssueTracker: https://github.com/zarant77/batt-deck/issues
+Changelog: https://github.com/zarant77/batt-deck/releases
+
+Name: BattDeck
+Summary: Offline battery pack manager
+Description: |-
+  BattDeck is an offline Android app for managing battery packs.
+
+  It helps track battery pack names, markings, voltage levels, estimated charge percentage,
+  active battery status, and usage order.
+
+  Features:
+  - battery pack list
+  - voltage input
+  - automatic charge percentage calculation
+  - active battery marker
+  - configurable minimum and maximum voltage
+  - editable battery markings
+  - JSON import and export
+  - local-only data storage
+
+  BattDeck does not require accounts, internet access, cloud sync, analytics, ads, or remote servers.
+
+RepoType: git
+Repo: https://github.com/zarant77/batt-deck.git
+
+Builds:
+  - versionName: 0.3.0
+    versionCode: 3
+    commit: v0.3.0
+    subdir: .
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 0.3.0
+CurrentVersionCode: 3

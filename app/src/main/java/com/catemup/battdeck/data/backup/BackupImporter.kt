@@ -48,7 +48,6 @@ object BackupImporter {
                 }
             }
             val firstActiveId = imported.filterNot { it.isRemoved }.filter { it.isActive }.minByOrNull { it.sortOrder }?.id
-                ?: imported.filterNot { it.isRemoved }.minByOrNull { it.sortOrder }?.id
             val batteries = imported.map { it.copy(isActive = it.id == firstActiveId) }
             val settings = AppSettings(batteryCount, minVoltage, maxVoltage, language, markings)
             ImportResult.Success(ImportPreview(AppData(settings, batteries), batteryCount = batteries.size, exportedAt = root.optLong("exportedAt").takeIf { root.has("exportedAt") }, hasSettings = true))

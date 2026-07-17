@@ -1,92 +1,83 @@
 # Codex Notes
 
-Цей файл містить правила для AI-агента, який буде допомагати писати код.
+This file contains project-specific guidance for AI coding agents.
 
 ## Project identity
 
-Це **BattDeck**, Android-застосунок для обліку батарей.
+This is **BattDeck**, an Android app for manually tracking battery packs.
 
-Не плутати з **Sarmat Monitor**.
+Do not confuse it with **Sarmat Monitor**, a separate desktop telemetry, Wi-Fi bridge, and MAVLink project.
 
-Sarmat Monitor — це окремий desktop-проєкт для телеметрії, WiFi bridge і MAVLink.
+## Do not use the old stack
 
-BattDeck — це Android-застосунок для ручного списку батарей.
-
-## Do not use old stack
-
-Не використовувати:
+Do not introduce:
 
 - Little One;
 - native C;
 - NDK;
 - CMake;
-- custom game loop;
-- old renderer;
+- a custom game loop;
+- the old renderer;
 - OpenGL;
 - SDL;
 - WebView.
 
-Нова версія повинна бути чистим Android-native застосунком.
+BattDeck must remain a clean Android-native application.
 
-## Recommended stack
+## Current stack
 
 - Kotlin;
-- Jetpack Compose;
-- локальний JSON-файл;
-- AtomicFile для безпечного запису;
-- Coroutines;
+- Jetpack Compose and Material 3;
+- private local JSON storage;
+- `AtomicFile` for safe writes;
+- Coroutines and StateFlow;
 - ViewModel.
 
 ## UI style
 
-Зберегти стиль першої версії:
+Maintain the established interface:
 
-- dark tactical UI;
-- pixel/HUD aesthetics;
-- green/orange/red status colors;
-- large numbers;
-- compact battery rows;
-- simple screens;
-- no generic Material look.
+- dark technical UI;
+- compact battery cards;
+- clear green, orange, and red charge colors;
+- large voltage and percentage values;
+- simple screens and high-contrast controls;
+- standard Material 3 behavior without unnecessary visual complexity.
 
 ## Scope discipline
 
-Не додавати зайве в MVP.
+Do not add unrelated features such as:
 
-Не додавати:
-
-- cloud sync;
+- cloud synchronization;
 - accounts;
-- server;
+- a backend server;
 - Bluetooth;
 - telemetry;
-- QR scanning;
-- statistics dashboards;
-- complicated inventory system.
-
-Спочатку зробити базовий облік батарей.
+- automatic battery readings;
+- analytics, ads, or tracking SDKs;
+- a complex inventory system.
 
 ## Business rules
 
-- Store voltage, not percent.
-- Percent is calculated from settings.
-- Only one active battery is allowed.
+- Store voltage, not percentage.
+- Calculate percentage from settings.
+- Allow at most one active battery, including none.
 - Queue order matters.
-- Battery reset sets it to low/min voltage in MVP.
-- Settings changes affect percent display, not stored voltage.
+- Reset sets a battery to the configured minimum voltage.
+- Settings changes affect calculated percentage, not stored voltage.
+- Batteries reference markings by list index; markings have no persisted ID.
+- Changing a marking updates all batteries that reference its index.
 
 ## Code quality
 
 - Keep battery rules out of UI composables.
-- Keep persistence out of UI.
-- Use ViewModels.
-- Use repositories.
-- Keep models simple.
+- Keep persistence and JSON parsing out of UI.
+- Coordinate actions through ViewModels and repositories.
+- Keep models simple and immutable.
 - Prefer small focused files.
-- Avoid giant screens with all logic inside.
+- Avoid oversized screens containing unrelated logic.
+- Preserve backward-compatible JSON migration where practical.
 
 ## Language
 
-User-facing UI text should be Ukrainian.
-
-Code comments, if needed, should be in English.
+User-facing text is localized in Ukrainian and English Android resources. Code, code comments, commit messages, and project documentation should be in English.

@@ -1,29 +1,55 @@
 # UI Specification
 
-BattDeck uses a dark Material 3 interface with a modern technical mood. It uses standard `Scaffold`, top app bars, cards, buttons, chips, text fields, and progress indicators. The old pixel/terminal presentation and stepper-based primary inputs are not used.
+BattDeck uses a dark Material 3 interface with a modern technical style. It relies on standard scaffolds, top app bars, cards, buttons, chips, text fields, progress indicators, and Android system pickers.
 
 ## Main screen
 
-The top bar shows `BATTDECK`, a short subtitle, Help, and Settings. Each outlined card shows the text battery name, type chip, voltage, calculated percentage, last-update text, and a horizontal charge indicator. An active pack has an `АКТИВНА` chip, highlighted surface, and blue border.
+The header shows the launcher logo, a colored `BattDeck` title, the current app version from `BuildConfig.VERSION_NAME`, a short subtitle, and icon actions for Help and Settings. `Batt` is blue, `Deck` is yellow, and the smaller version text is gray.
 
-Tap a card for details; tap its charge bar to edit voltage. Swipe left or right to toggle active state; the card follows the finger and reveals an action background. Packs at 95% or above can be reordered by vertically dragging their full-height color handle; all packs below 95% are grouped at the end of the list.
+Each compact battery card uses two rows:
+
+- a full-height marking-color drag handle;
+- battery name;
+- voltage and calculated percentage;
+- last-update text;
+- a thin horizontal charge indicator.
+
+Tap a card to open charge editing. Swipe left or right to toggle active state; the card follows the gesture and reveals action feedback. Packs at 95% or above can be reordered by vertically dragging the color handle. Packs below 95% remain grouped at the end.
 
 ## Charge editing
 
-The screen shows the pack name and type, current voltage, calculated percentage, vertical indicator, and an `OutlinedTextField` labeled `Напруга` with decimal keyboard and `V` suffix. Both `.` and `,` are accepted. Invalid, empty, partial, or out-of-range values show an error and cannot be saved.
+The screen shows the pack name, marking color, current voltage, calculated percentage, and a large vertical battery indicator. A vertical swipe over the indicator changes charge. Saving updates `lastUpdatedAt` only when voltage actually changes.
 
-## Battery details
+The Settings button opens the battery settings screen. Cancel and Save remain available at the bottom.
 
-The name is editable in a required text field with a 32-character limit. Filter chips select `СИНЯ` or `ЧОРНА`. The screen also shows voltage, percentage, charge indicator, update age, active state, and actions to activate, edit charge, remove, cancel, or save.
+## Battery settings
 
-## Settings
+The title includes the battery name. Users can edit:
 
-Outlined numeric fields edit pack count, minimum voltage, and maximum voltage. Count is restricted to `1..50`; minimum must be lower than maximum. Errors are shown in Ukrainian and saving is disabled until the changed values are valid. A scale preview maps minimum to 0% and maximum to 100%.
+- the required battery name, up to 32 characters;
+- the charge update date in validated `DD.MM.YYYY` format;
+- the marking selected from the global list.
+
+The screen also provides Remove, Cancel, and Save actions. Saving a manually entered date must preserve that date when charge has not changed.
+
+## App settings
+
+Sections appear in this order:
+
+1. Language.
+2. Battery count.
+3. Voltage range.
+4. Markings.
+5. Data import and export.
+
+Battery count is restricted to `1..50`; minimum voltage must be lower than maximum voltage. Markings have editable names and colors. A marking that is used by a battery cannot be deleted. Changing one marking updates every battery that references its list index.
+
+Export opens the Android share sheet. Import opens the Android document picker, validates the selected JSON, and displays a preview before replacing local data.
 
 ## Help and accessibility
 
-Help describes the current fields and gestures. Standard Material components provide comfortable touch targets and high-contrast text. The app remains dark-mode only.
+Help describes the current fields and gestures. Standard Material components provide comfortable touch targets, high-contrast text, and familiar Android behavior. The app remains dark-mode only and is locked to portrait orientation.
 
 ## Localization
 
-All user-facing text is stored in Android string resources. Ukrainian in `values/strings.xml` is the fallback language; English is provided in `values-en/strings.xml`. On first launch the app selects English for an English phone locale and Ukrainian otherwise. Settings provide a two-flag segmented selector for Ukrainian and English; the choice is persisted with app settings.
+All user-facing text is stored in Android string resources. Ukrainian in `values/strings.xml` is the fallback language; English is provided in `values-en/strings.xml`. The initial language follows the phone locale, using Ukrainian for unsupported locales. Settings provide an immediate Ukrainian/English selector; Cancel or Back restores the previously saved language.

@@ -1,18 +1,16 @@
 # Battery Rules
 
-## Основний принцип
+## Core principle
 
-Фактичним значенням заряду є напруга.
+Voltage is the stored charge value. Percentage is only a visual scale between the configured minimum and maximum voltage.
 
-Відсоток — це лише візуальна шкала між мінімальною і максимальною напругою.
-
-## Формула відсотка
+## Percentage formula
 
 ```text
 percent = (voltage - minVoltage) / (maxVoltage - minVoltage) * 100
 ```
 
-Результат треба обмежити діапазоном `0..100`.
+The result is clamped to `0..100`:
 
 ```text
 if percent < 0   -> 0
@@ -22,17 +20,15 @@ if percent > 100 -> 100
 ## Default voltage scale
 
 ```text
-minVoltage = 40.2v
-maxVoltage = 50.2v
+minVoltage = 40.2 V
+maxVoltage = 50.2 V
 ```
 
-Ці значення можна змінити в налаштуваннях.
+Users can change these values in settings. Changing the scale does not modify stored battery voltage; it only changes the calculated percentage.
 
-Зміна шкали не змінює фактичну напругу батарей. Вона змінює тільки розрахований відсоток.
+## Charge colors
 
-## Кольори заряду
-
-Default:
+Default thresholds:
 
 ```text
 >= 95%  green
@@ -40,35 +36,23 @@ Default:
 < 50%   red
 ```
 
-## Статуси
+## Statuses
 
 ### Ready
 
 ```text
-percent >= greenPercent
+percent >= 95
 ```
 
-UI:
-
-```text
-ГОТОВА
-```
-
-Колір: зелений.
+Color: green.
 
 ### Warning
 
 ```text
-percent >= orangePercent && percent < greenPercent
+percent >= 50 && percent < 95
 ```
 
-UI:
-
-```text
-ПЕРЕВІР
-```
-
-Колір: помаранчевий.
+Color: orange.
 
 ### Danger
 
@@ -76,38 +60,36 @@ UI:
 percent < 50
 ```
 
-UI:
-
-```text
-НЕБЕЗПЕКА
-```
-
-Колір: червоний або темно-червоний.
+Color: red or dark red.
 
 ## Active battery
 
-- Активною може бути тільки одна батарея.
-- Якщо користувач активує нову батарею, попередня активна батарея стає неактивною.
-- Активна батарея має бути чітко виділена на головному екрані.
+- At most one battery may be active.
+- Activating a new battery deactivates the previous one.
+- Toggling the active battery may leave all batteries inactive.
+- Newly created data has no active battery by default.
+- The active battery must be clearly highlighted on the main screen.
 
 ## Reset battery
 
-Скидання батареї означає, що комплект використано або він більше не готовий.
+Reset means that a pack has been used or is no longer ready.
 
 MVP behavior:
 
-- встановити voltage = minVoltage;
-- оновити updatedAt;
-- прибрати active flag, якщо батарея була активна.
+- set `voltage = minVoltage`;
+- update `lastUpdatedAt`;
+- clear `isActive` if the battery was active.
 
-Alternative future behavior:
+Possible future behavior:
 
-- окремий стан `Used`;
-- історія використання;
-- окремий екран зарядки.
+- a separate `Used` state;
+- usage history;
+- a dedicated charging workflow.
 
 ## Queue
 
-Порядок списку — це черга використання.
+The list order represents the usage queue.
 
-Користувач може змінювати чергу вручну.
+- Packs at 95% or above can be reordered manually.
+- Packs below 95% are always grouped at the end.
+- Dragging continues until the user lifts their finger.

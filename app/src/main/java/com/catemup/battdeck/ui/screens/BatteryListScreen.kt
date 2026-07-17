@@ -25,10 +25,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.catemup.battdeck.R
+import com.catemup.battdeck.BuildConfig
 import com.catemup.battdeck.ui.updatedText
 import com.catemup.battdeck.domain.*
 import com.catemup.battdeck.ui.components.BatteryChargeBar
@@ -54,7 +58,17 @@ fun BatteryListScreen(
                         Image(painterResource(R.mipmap.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(52.dp))
                         Spacer(Modifier.width(10.dp))
                         Column {
-                            Text(stringResource(R.string.app_title), fontWeight = FontWeight.Bold)
+                            val appName = stringResource(R.string.app_name)
+                            Text(
+                                buildAnnotatedString {
+                                    withStyle(SpanStyle(color = UkrainianBlue, fontWeight = FontWeight.Bold)) { append(appName.take(4)) }
+                                    withStyle(SpanStyle(color = UkrainianYellow, fontWeight = FontWeight.Bold)) { append(appName.drop(4)) }
+                                    append(" ")
+                                    withStyle(SpanStyle(color = TextMuted, fontSize = 14.sp, fontWeight = FontWeight.Normal)) {
+                                        append("v${BuildConfig.VERSION_NAME}")
+                                    }
+                                },
+                            )
                             Text(stringResource(R.string.app_subtitle), style = MaterialTheme.typography.labelSmall, color = TextMuted)
                         }
                     }

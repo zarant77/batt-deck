@@ -2,36 +2,43 @@
 
 <img src="icon.png" width="128">
 
-**BattDeck** is an Android application for managing UAV battery sets.
+**BattDeck** is an Android app for tracking UAV battery packs.
 
-Its purpose is simple: quickly see which batteries are charged, which battery is currently active, which sets have already been used, and the order in which they should be taken.
+Its purpose is simple: quickly show which batteries are charged, which pack is active, which packs have already been used, and the order in which they should be selected.
 
-This is not a complex ERP system or a “smart cloud service.” It is a compact offline tool designed for field operations.
+BattDeck is not an ERP system or a cloud platform. It is a compact offline tool designed for fast field use.
 
-BattDeck works entirely offline using a local-first approach. Data is stored only on the device. Manual JSON import and export through the standard Android file picker and share sheet are available for transferring data between devices.
+The app is fully offline and local-first. Data stays on the device; manual JSON import and export through Android's system document picker and share sheet are available for moving data between devices.
 
-## Core Concept
+## Download
 
-- a list of battery sets;
-- a number for each set;
-- editable set labels and colors;
+Download the latest APK from [GitHub Releases](https://github.com/zarant77/batt-deck/releases/latest).
+
+Direct APK download:
+
+https://github.com/zarant77/batt-deck/releases/latest/download/BattDeck-release.apk
+
+## Features
+
+- battery pack list;
+- custom pack names;
+- editable markings and colors;
 - current voltage;
 - charge percentage calculated from the voltage range;
-- date of the last charge update;
-- active battery;
-- manual charge adjustment;
-- quick reset of a used battery;
-- queue order management;
-- local JSON import and export through the system file picker and share menu.
+- last charge update date;
+- optional active battery state;
+- gesture-based charge editing;
+- swipe activation and deactivation;
+- drag-and-drop ordering of ready packs;
+- local JSON import and export.
 
-## Technology Stack
-
-Baseline recommendation for the new version:
+## Stack
 
 - Kotlin;
 - Jetpack Compose;
-- a local JSON file;
-- Material 3 as the technical foundation, with a custom tactical/pixel UI.
+- Material 3;
+- local JSON storage with Android `AtomicFile`;
+- Coroutines, StateFlow, and ViewModel.
 
 ## Documentation
 
@@ -44,12 +51,11 @@ Baseline recommendation for the new version:
 - [Project Structure](docs/STRUCTURE.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Codex Notes](docs/CODEX_NOTES.md)
+- [Custom F-Droid Repository](docs/FDROID_REPO.md)
 
-## Principle
+## Product principle
 
-The application must be fast, simple, offline, and understandable at a glance.
-
-The operator should not have to think about where to tap. Open the app, check the battery status, and take the correct set.
+The app must remain fast, simple, offline, and understandable at a glance. An operator should be able to open it, review battery state, and select the correct pack without navigating a complex workflow.
 
 ## Privacy
 
@@ -61,33 +67,35 @@ BattDeck does not use:
 - analytics or tracking SDKs;
 - advertising or in-app purchases.
 
-The application does not request the `INTERNET` permission, broad storage permissions, or access to the list of installed applications. All operational data remains in Android's private local storage until the user explicitly exports a JSON file.
+The app does not request `INTERNET`, broad storage permissions, or access to the installed-app list. Operational data remains in private Android storage until the user explicitly exports a JSON file.
 
-## Build and Run
+## Build and run
 
-Android Studio with JDK 17 and Android SDK 35 is required.
+Android Studio or JDK 17 with Android SDK 35 is required.
 
-The easiest option is to launch the interactive runner:
+The simplest workflow uses the interactive runner:
 
 ```bash
 ./runner.sh
 ```
 
-Or run a specific action without the menu:
+Commands can also be run directly:
 
 ```bash
-./runner.sh doctor      # Check the environment and device connection
-./runner.sh build-run   # Build, install, and launch on the phone
-./runner.sh release     # Build release APK and AAB files in build/
-./runner.sh test        # Run unit tests
-./runner.sh clean       # Remove build outputs
-./runner.sh deep-clean  # Also remove the local Gradle cache
-./runner.sh help        # Show all available commands
+./runner.sh doctor      # check the environment and device connection
+./runner.sh build-run   # build, install, and launch on a connected device
+./runner.sh release     # build signed release APK and AAB into build/
+./runner.sh fdroid      # build and update the custom F-Droid repository
+./runner.sh icons       # regenerate Android and F-Droid icons
+./runner.sh test        # run unit tests
+./runner.sh clean       # clean build outputs
+./runner.sh deep-clean  # also remove local Gradle state
+./runner.sh help        # list every command
 ```
 
-On the phone, enable **Developer options** → **USB debugging** and confirm access for this computer. If multiple devices are connected, the runner will prompt you to select one.
+Enable **Developer options → USB debugging** on the phone and authorize the computer. If several devices are connected, the runner asks which one to use.
 
-Run Gradle commands directly:
+Direct Gradle commands:
 
 ```bash
 ./gradlew assembleDebug
@@ -95,53 +103,52 @@ Run Gradle commands directly:
 ./gradlew test
 ```
 
-The debug APK will be created in `app/build/outputs/apk/debug/`. Without `keystore.properties`, the release command creates an unsigned APK suitable for F-Droid signing. To run the project, open the repository root in Android Studio, wait for Gradle synchronization to finish, and launch the `app` configuration on a device or emulator running Android 7.0 or newer.
+The debug APK is created under `app/build/outputs/apk/debug/`. Without `keystore.properties`, the release command creates an unsigned APK suitable for F-Droid signing. The app supports Android 7.0 and later.
 
-### Signing the Release Build
+### Personal release signing
 
-Release APK and AAB files are signed with `keystore/battdeck-upload.jks`. Copy the local template and enter the actual key credentials:
+Personal release APK and AAB files use `keystore/battdeck-upload.jks`. Copy the local template and fill in the real key details:
 
 ```bash
 cp keystore.properties.example keystore.properties
 ```
 
-Fill in `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. The `keystore.properties` file and all keystore files are excluded from Git. Signed outputs will be created as `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
+Set `storePassword`, `keyAlias`, and `keyPassword`, then run `./runner.sh release`. Both `keystore.properties` and keystore files are excluded from Git. Signed outputs are copied to `build/BattDeck-release.apk` and `build/BattDeck-release.aab`.
 
 ## Distribution
 
-Signed APK files can be distributed directly through GitHub Releases or another trusted channel. Users should verify the source and APK signature before installation.
+Signed APKs may be distributed directly through GitHub Releases or another trusted channel. Users should verify the source and APK signature before installation.
 
-The repository is prepared for F-Droid: a draft recipe is located at `metadata/com.catemup.battdeck.yml`, and localized descriptions are stored in `fastlane/metadata/android/`. Official inclusion in the F-Droid catalog requires a public tag, an accessible source archive, and a separate merge request to `fdroiddata`.
+The repository includes an F-Droid metadata draft at `metadata/com.catemup.battdeck.yml` and localized descriptions under `fastlane/metadata/android/`. Inclusion in the official F-Droid catalog still requires a public tag, an accessible source archive, and a merge request to `fdroiddata`.
 
-## F-Droid Repository
+## F-Droid repository
 
-BattDeck can be installed from its own F-Droid repository:
+BattDeck can be installed from the custom F-Droid repository:
 
 ```text
 https://zarant77.github.io/batt-deck/fdroid/repo/
 ```
 
-Instructions for creating, signing, and publishing the repository are available in [docs/FDROID_REPO.md](docs/FDROID_REPO.md).
+See [docs/FDROID_REPO.md](docs/FDROID_REPO.md) for repository generation, signing, publishing, and client setup instructions.
 
-## Application Icon
+## App icons
 
-The `icon.png` file in the repository root is the single source for Android launcher icons and the F-Droid repository icon. To generate all icons without Android Studio, install ImageMagick and run the script:
+The root `icon.png` is the single source for Android launcher icons and the custom F-Droid repository icon. Install ImageMagick and regenerate all icons with:
 
 ```bash
 brew install imagemagick
-./tools/generate_launcher_icons.sh
+./runner.sh icons
 ```
-
-You can also select `Generate launcher icons` in the interactive `./runner.sh` menu.
 
 ## Implemented in v0.3.0
 
-- five MVP screens in Ukrainian;
-- local storage of all data in a single JSON file;
-- battery charge, label, and name editing;
-- activation and reset using swipe gestures;
-- safe adjustment of the number of battery sets and the voltage range;
-- transfer of backup JSON files between devices without cloud services or accounts.
+- five core screens with Ukrainian and English localization;
+- atomic local persistence in a single JSON file;
+- charge, marking, name, and update-date editing;
+- swipe activation and drag-and-drop queue ordering;
+- safe battery-count and voltage-range settings;
+- portable JSON backup sharing without cloud services or accounts;
+- signed release and custom F-Droid repository workflows.
 
 ## License
 

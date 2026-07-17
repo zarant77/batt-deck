@@ -1,12 +1,18 @@
 # Project Structure
 
-Цей файл описує рекомендовану структуру коду. Її можна уточнювати після створення Android-проєкту.
+This document describes the current source layout and ownership of the main components.
 
-## Actual structure
+## Repository layout
 
 ```text
-battdeck/
+batt-deck/
   README.md
+  LICENSE
+  icon.png
+  runner.sh
+  tools/
+    generate_launcher_icons.sh
+    build_fdroid_repo.sh
   docs/
     PURPOSE.md
     PRODUCT_SPEC.md
@@ -17,7 +23,15 @@ battdeck/
     STRUCTURE.md
     ROADMAP.md
     CODEX_NOTES.md
-
+    FDROID_REPO.md
+  metadata/
+    com.catemup.battdeck.yml
+  fastlane/metadata/android/
+    en-US/
+    uk-UA/
+  fdroid/
+    config.yml
+    repo/
   app/
     build.gradle.kts
     src/main/
@@ -25,20 +39,18 @@ battdeck/
       java/com/catemup/battdeck/
         MainActivity.kt
         BattDeckApplication.kt
-
         data/
           JsonRepository.kt
           backup/
             BackupModels.kt
             BackupExporter.kt
             BackupImporter.kt
-
         domain/
           Battery.kt
           BatteryRules.kt
-
         ui/
           App.kt
+          LocalizedText.kt
           theme/
             Colors.kt
             Theme.kt
@@ -50,22 +62,21 @@ battdeck/
             ChargeEditScreen.kt
             SettingsScreen.kt
             HelpScreen.kt
-
           components/
             Components.kt
-
         viewmodel/
           AppViewModel.kt
-
-      test/java/com/catemup/battdeck/domain/
-        BatteryRulesTest.kt
+    src/test/java/com/catemup/battdeck/domain/
+      BatteryRulesTest.kt
 ```
 
-`AppViewModel` координує невеликий MVP-стан усіх екранів; правила заряду, нормалізація вводу та валідація залишаються в `domain`, а читання, сумісна міграція та атомарний запис `battdeck.json` — у `data/JsonRepository.kt`. Портативний JSON schema 1 створюють і перевіряють класи в `data/backup`; системні file picker і share sheet запускає UI. Material 3 компоненти й спільні поля вводу знаходяться в `ui/components/Components.kt`.
+## Responsibilities
+
+`AppViewModel` coordinates the application state and screen actions. Charge rules, input normalization, and validation remain in `domain`. Compatible private JSON migration and atomic persistence live in `data/JsonRepository.kt`.
+
+The portable backup schema is created and validated by `data/backup`. The UI launches Android's document picker and share sheet but does not parse JSON directly. Shared Material 3 components and fields live in `ui/components`.
 
 ## Package name
-
-Рекомендовано:
 
 ```text
 com.catemup.battdeck
@@ -73,22 +84,17 @@ com.catemup.battdeck
 
 ## Naming rules
 
-- Domain models: чисті назви без `Entity`.
-- Persistence models: `AppData` і domain-моделі, що серіалізуються в JSON.
-- UI state: immutable data classes such as `AppUiState`.
-- ViewModels: names with the `ViewModel` suffix, currently `AppViewModel` for the compact MVP.
+- Domain models use clean names without an `Entity` suffix.
+- Persistence uses `AppData` and serializable domain models.
+- UI state uses immutable data classes such as `AppUiState`.
+- ViewModels use the `ViewModel` suffix.
+- Shell tools use lowercase snake_case and must be exposed through `runner.sh`.
 
 ## Assets
 
-Можлива структура:
+The root `icon.png` is the single source for Android launcher icons and the custom F-Droid repository icon. Generated Android resources are stored under `app/src/main/res/mipmap-*`; the generated F-Droid icon is stored at `fdroid/repo/icons/icon.png`.
 
-```text
-app/src/main/assets/
-app/src/main/res/drawable/
-app/src/main/res/font/
-```
-
-Якщо буде потрібен кастомний шрифт, зберігати його в:
+If custom fonts are added, place them under:
 
 ```text
 app/src/main/res/font/
@@ -96,8 +102,6 @@ app/src/main/res/font/
 
 ## Notes
 
-Не треба переносити старий native C/Little One код.
+Do not port the old native C or Little One code. BattDeck is an Android-native application.
 
-Нова версія повинна бути чистою Android-native реалізацією.
-
-TODO для v0.2: реалізувати drag-and-drop зміну `sortOrder` та окремі ViewModel екранів, якщо їхній стан стане складнішим.
+Private signing keys, passwords, local Gradle state, and generated build directories must never be committed.

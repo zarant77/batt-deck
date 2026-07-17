@@ -33,7 +33,7 @@ Defaults are `batteryCount = 10`, `minVoltage = 40.2`, and `maxVoltage = 50.2`. 
 
 ## Storage and migration
 
-All state is stored offline in the private UTF-8 `battdeck.json` file and written atomically through Android `AtomicFile`. The current JSON schema is version 3 and stores battery names, marking references, and editable marking definitions.
+All state is stored offline in the private UTF-8 `battdeck.json` file and written atomically through Android `AtomicFile`. The current JSON schema is version 5 and stores battery names, marking indices, editable marking definitions, and two-letter language codes.
 
 The app performs non-destructive compatibility migrations while reading older data: numeric `number` becomes a two-digit `name`, and legacy `type: BLUE/BLACK` or `markingId: blue/black` becomes `markingIndex: 0/1`. Language is stored as `UK` or `EN`. The current JSON schema is version 5. No Room or DataStore database is currently used by this project.
 

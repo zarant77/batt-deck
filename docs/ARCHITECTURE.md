@@ -1,11 +1,12 @@
 # Architecture
 
-## Recommended stack
+## Stack
 
 - Kotlin;
 - Jetpack Compose;
+- Material 3;
 - JSON (`org.json`);
-- AtomicFile;
+- Android `AtomicFile`;
 - Coroutines;
 - StateFlow;
 - ViewModel.
@@ -14,86 +15,89 @@
 
 ```text
 ui -> viewmodel -> JSON repository
+                 -> backup services
                  -> domain rules
 ```
 
 ## UI layer
 
-Відповідає тільки за відображення і події користувача.
+The UI layer is responsible only for rendering state and handling user events. It must not contain business logic for charge calculations, status selection, or persistence.
 
-UI не повинен містити бізнес-логіку розрахунку заряду або статусів.
+Main UI components include:
 
-Приклади UI компонентів:
+- `BatteryListScreen`;
+- `BatteryDetailsScreen`;
+- `ChargeEditScreen`;
+- `SettingsScreen`;
+- `HelpScreen`;
+- shared components in `ui/components`.
 
-- BatteryListScreen;
-- BatteryDetailsScreen;
-- ChargeEditScreen;
-- SettingsScreen;
-- HelpScreen;
-- BatteryRow;
-- BatteryBar;
-- PixelButton.
+The UI launches Android system integrations such as the document picker and share sheet. JSON parsing and mapping remain outside composables.
 
 ## ViewModel layer
 
-Відповідає за:
+`AppViewModel` is responsible for:
 
-- стан екранів;
-- обробку UI actions;
-- виклики repository;
-- підготовку UI models.
+- exposing screen state;
+- handling UI actions;
+- calling the repository;
+- coordinating import previews and confirmation;
+- managing temporary language preview state.
 
 ## Domain layer
 
-Відповідає за правила:
+The domain layer owns:
 
-- розрахунок відсотка;
-- визначення статусу;
-- правила активної батареї;
-- правила скидання;
-- форматування часу `9 ДНІВ ТОМУ`.
+- charge percentage calculation;
+- charge status selection;
+- input normalization and validation;
+- active battery rules;
+- reset behavior;
+- relative update-time calculations.
 
 ## Data layer
 
-Відповідає за:
+The data layer contains:
 
-- єдиний `JsonRepository`;
-- читання та валідацію JSON;
-- атомарний запис повного стану;
-- потоки даних для UI.
+- the single `JsonRepository`;
+- private-state JSON decoding and migration;
+- atomic writes of the complete application state;
+- `BackupExporter` and `BackupImporter` for the portable JSON format;
+- observable data streams for the UI.
 
 ## Offline-first
 
-Застосунок повністю офлайн.
+The app is fully offline. All state is stored in the private `battdeck.json` file, which contains settings and the complete battery list.
 
-Усі дані зберігаються локально у приватному файлі `battdeck.json`. Файл містить налаштування і повний список батарей. Запис виконується атомарно: попередній валідний файл не замінюється, поки нова версія не записана повністю.
+Writes are atomic: the previous valid file is not replaced until the new state has been written successfully. Import and export use Android system file APIs and do not require broad storage permissions or network access.
 
 ## State management
 
-Рекомендовано використовувати:
+The app uses:
 
-- `StateFlow` у ViewModel;
-- immutable UI state;
-- events/actions для змін.
+- `StateFlow` in the ViewModel;
+- immutable domain and UI state;
+- explicit events and repository methods for changes.
 
-Приклад:
+Example:
 
 ```kotlin
-data class BatteryListUiState(
-    val batteries: List<BatteryUiModel>,
-    val activeBatteryId: Long?,
+data class AppUiState(
+    val batteries: List<Battery>,
     val settings: AppSettings,
-    val isLoading: Boolean = false
+    val isLoading: Boolean,
 )
 ```
 
 ## Error handling
 
-MVP повинен обробляти:
+The app must handle:
 
-- невалідні налаштування;
-- неможливість зберегти дані;
-- некоректну напругу;
-- дублікати номерів, якщо вирішено їх заборонити.
+- invalid settings;
+- storage failures;
+- invalid voltage and date input;
+- malformed or unsupported backup files;
+- invalid marking references;
+- multiple active batteries in imported data.
 
-Не треба падати через погані дані.
+Bad external data must not corrupt the existing local state or crash the app.

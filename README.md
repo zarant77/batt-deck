@@ -16,7 +16,7 @@ Download the latest APK from [GitHub Releases](https://github.com/zarant77/batt-
 
 Direct APK download:
 
-https://github.com/zarant77/batt-deck/releases/latest/download/BattDeck-release.apk
+[![Download APK](https://img.shields.io/badge/Download-APK-blue)](https://github.com/zarant77/batt-deck/releases/latest/download/BattDeck-release.apk)
 
 ## Features
 
